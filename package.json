@@ -1,0 +1,17 @@
+{
+  "name": "sangmo-photo-contest",
+  "version": "1.0.0",
+  "description": "상모성당 설립 25주년 기념 사진 콘테스트 관리 및 실시간 투표 시스템",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "localtunnel": "^2.0.2",
+    "multer": "^1.4.5-lts.1",
+    "qrcode": "^1.5.4",
+    "socket.io": "^4.8.1"
+  }
+}

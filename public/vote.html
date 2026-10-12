@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>모바일 현장 투표 - 상모성당 사진 콘테스트</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body style="background: #f1f5f9;">
+
+  <div class="mobile-wrapper">
+    
+    <!-- 모바일 헤더 -->
+    <header class="mobile-header">
+      <img src="/assets/logo_full_white.png" alt="상모성당 로고" onerror="this.src='/assets/logo_horizontal.png'">
+      <h1 style="font-size: 1.15rem; font-weight: 800; letter-spacing: -0.5px;">상모성당 설립 25주년 기념 사진 콘테스트</h1>
+      <p style="font-size: 0.8rem; color: #cbd5e1; margin-top: 2px;">
+        가장 행복하고 은총 넘치는 순간에 투표해 주세요!
+      </p>
+    </header>
+
+    <!-- 상단 안내 및 5분 타이머 바 -->
+    <div style="background: #0f172a; color: white; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow-sm);">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span class="badge badge-gold" style="font-size: 0.8rem;">1인 2표제</span>
+        <span style="font-size: 0.85rem; font-weight: 700;" id="selectionStatus">2개 중 0개 선택</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 6px;">
+        <i class="fa-regular fa-clock" style="color: var(--accent-gold);"></i>
+        <span id="mobileTimer" style="font-weight: 900; font-size: 1.15rem; color: var(--accent-gold-light); font-variant-numeric: tabular-nums;">
+          05:00
+        </span>
+      </div>
+    </div>
+
+    <!-- 메인 컨텐츠 영역 -->
+    <main style="padding: 16px; flex: 1;">
+
+      <!-- 상태 메시지 배너 (투표 대기 또는 마감 시 노출) -->
+      <div id="noticeBanner" style="display: none; padding: 16px; border-radius: 12px; margin-bottom: 16px; text-align: center; font-weight: 700;">
+      </div>
+
+      <!-- 본선 5개 후보 카드 리스트 -->
+      <div id="candidatesContainer">
+        <div style="text-align: center; padding: 40px; color: #64748b;">
+          <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem;"></i>
+          <p style="margin-top: 12px;">후보 목록을 불러오는 중입니다...</p>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- 하단 고정 투표 제출 버튼 바 -->
+    <div style="position: sticky; bottom: 0; background: white; padding: 14px 18px; border-top: 1px solid var(--border-light); box-shadow: 0 -4px 16px rgba(0,0,0,0.06); z-index: 100;">
+      <button class="btn btn-primary" id="btnSubmitVote" style="width: 100%; padding: 14px; font-size: 1.05rem; border-radius: 12px;" disabled>
+        마음에 드는 2개 작품을 선택해 주세요 (0/2)
+      </button>
+    </div>
+
+  </div>
+
+  <!-- 사진 원본 확대 모달 -->
+  <div class="modal-overlay" id="mobilePreviewModal">
+    <div class="modal-content" style="max-width: 95vw; padding: 12px; text-align: center;">
+      <button class="modal-close" id="btnCloseMobilePreview">&times;</button>
+      <img id="mobilePreviewImg" src="" style="width: 100%; max-height: 70vh; object-fit: contain; border-radius: 8px;">
+      <div id="mobilePreviewText" style="margin-top: 10px; font-weight: 800; font-size: 1rem; color: #0f172a;"></div>
+    </div>
+  </div>
+
+  <!-- 투표 완료 / 이미 참여함 모달 안내창 -->
+  <div class="modal-overlay" id="completedModal">
+    <div class="modal-content" style="max-width: 360px; text-align: center; padding: 28px 20px;">
+      <div style="width: 68px; height: 68px; border-radius: 50%; background: #dcfce7; color: #16a34a; font-size: 2rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+        <i class="fa-solid fa-check"></i>
+      </div>
+      <h3 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 8px;" id="completedTitle">
+        소중한 투표 감사합니다!
+      </h3>
+      <p style="font-size: 0.92rem; color: #64748b; line-height: 1.6;" id="completedDesc">
+        회원님의 2표가 정상적으로 반영되었습니다.<br>
+        대형 스크린에서 실시간 집계 현황을 확인하세요!
+      </p>
+      <div style="margin-top: 24px;">
+        <button class="btn btn-primary" style="width: 100%;" onclick="location.reload()">
+          확인
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/vote.js"></script>
+</body>
+</html>

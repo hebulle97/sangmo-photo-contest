@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>최종 시상 및 결과 발표 - 상모성당 설립 25주년 기념 사진 콘테스트</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <style>
+    /* 결과 페이지 전용 스크롤 및 고화질 레이아웃 */
+    html {
+      scroll-behavior: smooth;
+    }
+    body.result-body {
+      background: var(--bg-dark);
+      color: var(--text-white);
+      min-height: 100vh;
+      overflow-y: auto !important; /* 자유로운 아래 스크롤 보장 */
+      overflow-x: hidden;
+      margin: 0;
+      padding: 0;
+      background-image: 
+        radial-gradient(circle at 10% 10%, rgba(30, 58, 138, 0.25), transparent 40%),
+        radial-gradient(circle at 90% 90%, rgba(245, 158, 11, 0.15), transparent 40%);
+    }
+
+    /* 커스텀 다크 스크롤바 */
+    body.result-body::-webkit-scrollbar {
+      width: 12px;
+    }
+    body.result-body::-webkit-scrollbar-track {
+      background: #090d16;
+    }
+    body.result-body::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 6px;
+      border: 2px solid #090d16;
+    }
+    body.result-body::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-gold);
+    }
+
+    .award-card {
+      background: var(--bg-dark-card);
+      border-radius: var(--radius-lg);
+      border: 2px solid var(--border-dark);
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .award-card:hover {
+      transform: translateY(-3px);
+    }
+    .award-grand {
+      border-color: #f59e0b;
+      background: linear-gradient(145deg, #1e1b10, #131c2e);
+      box-shadow: 0 0 35px rgba(245, 158, 11, 0.35);
+    }
+    .award-badge-ribbon {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-weight: 900;
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body class="result-body">
+
+  <!-- 헤더 (고정 헤더) -->
+  <header class="screen-header" style="position: sticky; top: 0; z-index: 1000; background: rgba(9, 13, 22, 0.95); backdrop-filter: blur(10px); height: 68px;">
+    <div style="display:flex; align-items:center; gap:16px;">
+      <img src="/assets/logo_full_white.png" alt="상모성당 로고" class="logo" onerror="this.src='/assets/logo_horizontal.png'" style="height: 42px;">
+      <div class="screen-title-area">
+        <h2 style="font-size: 1.45rem;">상모성당 설립 25주년 기념 사진 콘테스트 영예의 수상작 발표</h2>
+        <p style="font-size: 0.8rem;">종합 평가 (사진 1 출석점수 50점 + 사진 2 현장 모바일투표 점수 50점) 최종 집계</p>
+      </div>
+    </div>
+    <div style="display:flex; gap:10px;">
+      <button class="btn btn-gold" id="btnFireConfetti" style="padding: 7px 16px; font-size: 0.9rem;">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> 축하 폭죽 터뜨리기
+      </button>
+      <button class="btn btn-outline" id="btnFullscreen" style="color:white; border-color:rgba(255,255,255,0.3); padding: 7px 14px; font-size: 0.9rem;">
+        <i class="fa-solid fa-expand"></i> 전체화면 (F11)
+      </button>
+    </div>
+  </header>
+
+  <!-- 빠른 섹션 이동 퀵 내비게이션 바 -->
+  <nav style="background: rgba(19, 28, 46, 0.8); border-bottom: 1px solid var(--border-dark); padding: 8px 30px; display: flex; gap: 12px; justify-content: center; position: sticky; top: 68px; z-index: 999; backdrop-filter: blur(8px);">
+    <a href="#secGrand" class="btn btn-dark" style="padding: 5px 14px; font-size: 0.82rem; border-color:#f59e0b; color:#fbbf24;">
+      <i class="fa-solid fa-crown"></i> 종합 대상
+    </a>
+    <a href="#secMajor" class="btn btn-dark" style="padding: 5px 14px; font-size: 0.82rem; border-color:#3b82f6; color:#93c5fd;">
+      <i class="fa-solid fa-medal"></i> 최우수상 & 우수상
+    </a>
+    <a href="#secHarmony" class="btn btn-dark" style="padding: 5px 14px; font-size: 0.82rem; border-color:#10b981; color:#a7f3d0;">
+      <i class="fa-solid fa-users"></i> 출석 100% 화합상
+    </a>
+    <a href="#secRanking" class="btn btn-dark" style="padding: 5px 14px; font-size: 0.82rem; border-color:#cbd5e1; color:#ffffff;">
+      <i class="fa-solid fa-list-ol"></i> 전체 종합 순위표
+    </a>
+  </nav>
+
+  <!-- 메인 시상 콘텐츠 (스크롤 자유롭게 끝까지 이동) -->
+  <main class="container" style="max-width: 1560px; padding: 28px 24px 100px;">
+
+    <!-- 1. 영예의 대상 (1팀 - 상금 30만원) -->
+    <section id="secGrand" style="margin-bottom: 40px; scroll-margin-top: 130px;">
+      <div id="grandPrizeSection">
+        <!-- 자바스크립트로 대상 카드 동적 렌더링 -->
+      </div>
+    </section>
+
+    <!-- 2. 최우수상 (2팀) & 우수상 (2팀) 그리드 -->
+    <section id="secMajor" style="margin-bottom: 44px; scroll-margin-top: 130px;">
+      <div style="margin-bottom: 16px;">
+        <h3 style="font-size: 1.5rem; font-weight: 800; color: white;">
+          <i class="fa-solid fa-medal text-gold"></i> 부문별 최우수상 & 우수상
+        </h3>
+        <p style="font-size: 0.85rem; color: #94a3b8;">
+          위원회/단체/레지오 부문 및 구역·반 부문별 1위, 2위 수상작
+        </p>
+      </div>
+      <div id="majorPrizesSection" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px;">
+        <!-- 최우수상 및 우수상 카드 동적 렌더링 -->
+      </div>
+    </section>
+
+    <!-- 3. 화합상 (출석률 100% 모임 다수 - 각 10만원) -->
+    <section id="secHarmony" class="card" style="background: rgba(19, 28, 46, 0.9); border: 2px solid rgba(16, 185, 129, 0.5); border-radius: 20px; padding: 28px; margin-bottom: 44px; scroll-margin-top: 130px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px; flex-wrap:wrap; gap:12px;">
+        <div>
+          <span class="badge badge-green" style="font-size:0.95rem; padding:5px 14px;">
+            <i class="fa-solid fa-users"></i> 전원 출석 특별상
+          </span>
+          <h3 style="font-size: 1.5rem; font-weight: 800; color: white; margin-top: 6px;">
+            화합상 (출석률 100% 달성 모임 전원 수상 · 각 현금 100,000원)
+          </h3>
+        </div>
+        <div style="font-size: 0.88rem; color: #94a3b8;">
+          상위 수상팀을 제외하고 전원 출석(100%)을 이뤄낸 모든 성실 출품팀
+        </div>
+      </div>
+
+      <div id="harmonyPrizesList" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px;">
+        <!-- 화합상 단체들 동적 렌더링 -->
+      </div>
+    </section>
+
+    <!-- 4. 전체 종합 순위표 (기안서 동률 처리 원칙 반영) -->
+    <section id="secRanking" class="card" style="background: rgba(19, 28, 46, 0.9); border: 1px solid var(--border-dark); border-radius: 20px; padding: 28px; scroll-margin-top: 130px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px; flex-wrap:wrap; gap:12px;">
+        <h3 style="font-size: 1.5rem; font-weight: 800; color: white;">
+          <i class="fa-solid fa-list-ol text-gold"></i> 전체 종합 순위표 (100점 만점)
+        </h3>
+        <span style="font-size: 0.88rem; color: #94a3b8;">
+          * 동점 시 기안서 원칙에 따라 <strong>실제 참가 인원수가 더 많은 팀</strong>을 우선 순위로 배치하였습니다.
+        </span>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table" style="color: white;">
+          <thead>
+            <tr style="border-bottom: 2px solid var(--border-dark);">
+              <th style="background:#0f172a; color:#f8fafc;">순위</th>
+              <th style="background:#0f172a; color:#f8fafc;">부문</th>
+              <th style="background:#0f172a; color:#f8fafc;">단체명</th>
+              <th style="background:#0f172a; color:#f8fafc;">등록인원</th>
+              <th style="background:#0f172a; color:#38bdf8;">참가인원 (동률우선기준)</th>
+              <th style="background:#0f172a; color:#f8fafc;">출석률(%)</th>
+              <th style="background:#0f172a; color:#93c5fd;">사진1 출석점수(50)</th>
+              <th style="background:#0f172a; color:#fcd34d;">사진2 투표점수(50)</th>
+              <th style="background:#0f172a; color:#fbbf24; font-size:1.05rem;">최종 총점(100)</th>
+            </tr>
+          </thead>
+          <tbody id="rankingTableBody">
+            <!-- 종합 순위 동적 렌더링 -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/result.js"></script>
+</body>
+</html>

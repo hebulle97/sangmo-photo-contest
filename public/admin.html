@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>관리자 센터 - 상모성당 설립 25주년 기념 사진 콘테스트</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+  <!-- 관리자 네비게이션 헤더 -->
+  <header class="admin-navbar">
+    <div class="nav-brand">
+      <img src="/assets/logo_full_white.png" alt="상모성당 로고" onerror="this.src='/assets/logo_horizontal.png'">
+      <div>
+        <h1>상모성당 설립 25주년 기념 사진 콘테스트 관리자 센터</h1>
+        <p>기안서 심사 규정 준수 · 출석률 점수 자동 환산 · 실시간 5분 모바일 투표 제어</p>
+      </div>
+    </div>
+    <div class="nav-links">
+      <button class="btn btn-dark" id="btnBackupData" title="현재 모든 단체 및 설정 백업 다운로드">
+        <i class="fa-solid fa-download"></i> 백업 저장
+      </button>
+      <label class="btn btn-dark" style="cursor:pointer; margin-bottom:0;" title="백업 파일 불러와서 복원">
+        <i class="fa-solid fa-upload"></i> 백업 복원
+        <input type="file" id="restoreFileInput" accept=".json" style="display:none;">
+      </label>
+      <a href="/screen" target="_blank" class="btn btn-gold">
+        <i class="fa-solid fa-desktop"></i> 대형 스크린 송출
+      </a>
+      <a href="/vote" target="_blank" class="btn btn-outline" style="color:white; border-color:rgba(255,255,255,0.4)">
+        <i class="fa-solid fa-mobile-screen"></i> 모바일 투표
+      </a>
+      <a href="/result" target="_blank" class="btn btn-primary">
+        <i class="fa-solid fa-trophy"></i> 최종 결과 발표
+      </a>
+    </div>
+  </header>
+
+  <main class="container" style="padding-top: 28px; padding-bottom: 60px;">
+
+    <!-- 1. 스마트폰 접속 상태 (접속 방식 A) 및 투표 제어 콘솔 -->
+    <section class="card" style="border: 2px solid #3b82f6;">
+      <div class="card-header">
+        <h2 class="card-title text-primary">
+          <i class="fa-solid fa-tower-broadcast text-rose"></i>
+          현장 모바일 접속 & 5분 투표 제어 콘솔
+        </h2>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <span class="badge badge-gold" id="votingStatusBadge">
+            <i class="fa-solid fa-circle-dot"></i> 대기 상태
+          </span>
+          <button class="btn btn-outline" id="btnShowQr" style="padding:6px 14px; font-size:0.85rem;">
+            <i class="fa-solid fa-qrcode"></i> 접속 QR 코드 보기
+          </button>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; align-items: center;">
+        
+        <!-- 접속 주소 정보 (방식 A) & 상시 노출 인라인 QR 코드 (팝업 불필요) -->
+        <div style="background: #f1f5f9; padding: 18px; border-radius: 12px; display:flex; gap:16px; align-items:center;">
+          <!-- 상시 표출 인라인 QR -->
+          <div style="background:white; padding:8px; border-radius:10px; border:1px solid #cbd5e1; flex-shrink:0; text-align:center;">
+            <img id="inlineQrImage" src="" alt="접속 QR코드" style="width:100px; height:100px; display:block;">
+            <span style="font-size:0.72rem; font-weight:800; color:#475569; display:block; margin-top:2px;">모바일 QR</span>
+          </div>
+
+          <div style="flex:1; min-width:0;">
+            <div style="font-size:0.85rem; font-weight:800; color:#475569; margin-bottom:6px;">
+              <i class="fa-solid fa-globe"></i> 전신자 스마트폰 접속 무료 주소 (방식 A)
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <input type="text" id="publicUrlInput" class="form-control" style="font-weight:700; background:white; font-size:0.88rem;" readonly value="주소 생성 중...">
+              <button class="btn btn-primary" id="btnCopyUrl" title="주소 복사" style="padding:10px 14px;">
+                <i class="fa-regular fa-copy"></i>
+              </button>
+              <button class="btn btn-outline" id="btnRefreshTunnel" title="인터넷 접속 주소 새로고침 / 터널 재연결" style="padding:10px 14px; background:white;">
+                <i class="fa-solid fa-arrows-rotate"></i>
+              </button>
+            </div>
+            <p style="font-size: 0.78rem; color: #64748b; margin-top: 6px;">
+              * 스마트폰 카메라로 QR 코드를 비추면 즉시 접속됩니다. (팝업창 필요 없음)
+            </p>
+          </div>
+        </div>
+
+        <!-- 5분 카운트다운 타이머 & 참여자 수 -->
+        <div style="background: #0f172a; color: white; padding: 18px; border-radius: 12px; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-size:0.8rem; color:#94a3b8; font-weight:700;">투표 제한 시간 (5분)</div>
+            <div id="adminTimer" style="font-size: 2.2rem; font-weight: 900; color: #fbbf24; font-variant-numeric: tabular-nums;">
+              05:00
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:0.8rem; color:#94a3b8; font-weight:700;">실시간 참여 인원</div>
+            <div id="totalVotersCount" style="font-size: 2.2rem; font-weight: 900; color: #38bdf8;">
+              0<span style="font-size:1.1rem; color:#94a3b8;">명</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 투표 제어 버튼들 -->
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <button class="btn btn-gold btn-lg" id="btnStartVote" style="width: 100%;">
+            <i class="fa-solid fa-play"></i> 5분 현장 투표 시작하기
+          </button>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <button class="btn btn-outline" id="btnExtendVote" style="font-size:0.88rem;">
+              <i class="fa-solid fa-clock-rotate-left"></i> +1분 연장
+            </button>
+            <button class="btn btn-danger" id="btnEndVote" style="font-size:0.88rem;">
+              <i class="fa-solid fa-stop"></i> 즉시 마감
+            </button>
+          </div>
+          <button class="btn btn-outline" id="btnResetVote" style="width:100%; border-color:#f59e0b; color:#b45309; font-size:0.88rem; background:#fffbeb;" title="등록된 단체/사진은 유지하고 득표수와 투표 시간만 0표/05:00으로 초기화">
+            <i class="fa-solid fa-arrow-rotate-left"></i> 현장 투표 초기화 (0표 리셋)
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 2. 본선 5개 후보작 지정 섹션 (사진 2 우수작 사전 선별) -->
+    <section class="card">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">
+            <i class="fa-solid fa-star text-gold"></i>
+            본선 5개 후보작 선별 (기호 1번 ~ 5번)
+          </h2>
+          <p style="font-size: 0.85rem; color: #64748b; margin-top: 4px;">
+            기안서 원칙: 사목평의회에서 나눔과 친교의 모습이 잘 드러난 우수작 5편을 선별하여 대형 스크린 송출 및 모바일 투표를 진행합니다.
+          </p>
+        </div>
+        <button class="btn btn-primary" id="btnSaveFinalists">
+          <i class="fa-solid fa-check"></i> 후보 번호 저장
+        </button>
+      </div>
+
+      <div id="finalistsList" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
+        <!-- 본선 5개 후보 슬롯 동적 렌더링 -->
+      </div>
+    </section>
+
+    <!-- 3. 단체 등록 및 [사진 1] 자동 채점 관리 테이블 -->
+    <section class="card">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">
+            <i class="fa-solid fa-users text-primary"></i>
+            출품 단체 목록 및 [사진 1] 출석 점수 현황
+          </h2>
+          <p style="font-size: 0.85rem; color: #64748b; margin-top: 4px;">
+            배점 원칙: <strong>출석률(%) × 0.5 (50점 만점)</strong> 자동 계산 / 합산 동점 시 실제 참가 인원수가 많은 팀 우선
+          </p>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button class="btn btn-primary" id="btnOpenAddModal">
+            <i class="fa-solid fa-plus"></i> 새 단체 및 사진 등록
+          </button>
+        </div>
+      </div>
+
+      <!-- 단체 분류 필터 탭 -->
+      <div style="display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap;">
+        <button class="btn btn-dark active filter-btn" data-category="ALL">전체 보기</button>
+        <button class="btn btn-outline filter-btn" data-category="사목평의회">사목평의회</button>
+        <button class="btn btn-outline filter-btn" data-category="평신도사도직협의회">평신도사도직협의회(평협)</button>
+        <button class="btn btn-outline filter-btn" data-category="꾸리아(레지오마리애)">꾸리아 (레지오 마리애)</button>
+        <button class="btn btn-outline filter-btn" data-category="구역·반">구역·반</button>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table" id="groupsTable">
+          <thead>
+            <tr>
+              <th>부문</th>
+              <th>단체명</th>
+              <th>등록 인원</th>
+              <th>참가 인원</th>
+              <th>출석률(%)</th>
+              <th style="color:#1d4ed8;">사진1 점수 (50점)</th>
+              <th>사진1 (단체)</th>
+              <th>사진2 (활동/작품명)</th>
+              <th>본선 후보</th>
+              <th style="color:#b45309;">총점(100점)</th>
+              <th>관리</th>
+            </tr>
+          </thead>
+          <tbody id="groupsTableBody">
+            <!-- 자바스크립트로 동적 로딩 -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 새 단체 등록 / 수정 모달 -->
+  <div class="modal-overlay" id="groupModal">
+    <div class="modal-content" style="max-width: 640px; width: 100%;">
+      <button class="modal-close" id="btnCloseModal">&times;</button>
+      <h3 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 16px;" id="modalTitle">
+        단체 출품작 등록
+      </h3>
+
+      <form id="groupForm" enctype="multipart/form-data">
+        <input type="hidden" id="groupId" name="groupId">
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="formCategory">구분 / 부문</label>
+            <select id="formCategory" name="category" class="form-control" required>
+              <option value="사목평의회">사목평의회</option>
+              <option value="평신도사도직협의회">평신도사도직협의회(평협)</option>
+              <option value="꾸리아(레지오마리애)">꾸리아(레지오마리애)</option>
+              <option value="구역·반" selected>구역·반</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="formName">단체명 / 모임명</label>
+            <input type="text" id="formName" name="name" class="form-control" placeholder="예: 평화의 모후 Pr. / 2구역 3반" required>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="formRegistered">소속 등록 회원 수 (명)</label>
+            <input type="number" id="formRegistered" name="registeredCount" class="form-control" min="1" value="10" required>
+          </div>
+          <div class="form-group">
+            <label for="formAttended">사진1 실제 촬영 인원수 (명)</label>
+            <input type="number" id="formAttended" name="attendedCount" class="form-control" min="0" value="10" required>
+          </div>
+        </div>
+
+        <!-- 출석률 및 사진1 점수 실시간 미리보기 -->
+        <div style="background: #e0f2fe; padding: 12px; border-radius: 8px; margin-bottom: 16px; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <strong>출석률: </strong><span id="previewRate" style="font-weight:800; color:#0284c7;">100%</span>
+          </div>
+          <div>
+            <strong>사진1 자동 환산 점수: </strong><span id="previewScore" style="font-weight:900; color:#0369a1; font-size:1.1rem;">50.0 점 (50점 만점)</span>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="formPhoto1">[사진 1] 완전체 단체 사진</label>
+            <input type="file" id="formPhoto1" name="photo1" class="form-control" accept="image/*">
+            <small style="color:#64748b;">* 미등록 시 기본 성당 사진 적용</small>
+          </div>
+          <div class="form-group">
+            <label for="formPhoto2">[사진 2] 가장 즐거운 활동 사진</label>
+            <input type="file" id="formPhoto2" name="photo2" class="form-control" accept="image/*">
+            <small style="color:#64748b;">* 본선 후보 선정 시 모바일 투표에 쓰임</small>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label for="formPhoto2Title">[사진 2] 작품명 (필수)</label>
+          <input type="text" id="formPhoto2Title" name="photo2Title" class="form-control" placeholder="예: '사탄아 물러가라', '함께 걷는 기쁨'" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 20px;">
+          <label for="formPhoto2Desc">[사진 2] 간단 설명</label>
+          <textarea id="formPhoto2Desc" name="photo2Desc" class="form-control" rows="2" placeholder="활동 내용이나 재미있는 에피소드"></textarea>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="btn btn-outline" id="btnCancelModal">취소</button>
+          <button type="submit" class="btn btn-primary" id="btnSubmitGroup">저장하기</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- QR 코드 모달 -->
+  <div class="modal-overlay" id="qrModal">
+    <div class="modal-content" style="max-width: 460px; text-align: center;">
+      <button class="modal-close" id="btnCloseQrModal">&times;</button>
+      <h3 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 6px;">모바일 투표 접속 QR 코드</h3>
+      <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 14px;">
+        스마트폰 기본 카메라로 비추면 바로 투표 페이지로 이동합니다.
+      </p>
+
+      <!-- 인터넷 / 와이파이 전환 탭 -->
+      <div style="display: flex; gap: 8px; justify-content: center; margin-bottom: 16px;">
+        <button class="btn btn-dark active" id="btnQrTabTunnel" style="padding: 6px 14px; font-size: 0.85rem;">
+          <i class="fa-solid fa-globe"></i> 무료 인터넷 (LTE/5G)
+        </button>
+        <button class="btn btn-outline" id="btnQrTabLocal" style="padding: 6px 14px; font-size: 0.85rem;">
+          <i class="fa-solid fa-wifi"></i> 성당 Wi-Fi 전용
+        </button>
+      </div>
+
+      <div style="background: white; padding: 16px; border-radius: 14px; display: inline-block; box-shadow: var(--shadow-md);">
+        <img id="modalQrImage" src="" alt="접속 QR코드" style="width: 260px; height: 260px; display:block;">
+      </div>
+      <div id="modalQrUrl" style="margin-top: 14px; font-weight: 700; color: #1e3a8a; word-break: break-all; font-size: 0.92rem;"></div>
+      <div style="margin-top: 14px;">
+        <button class="btn btn-outline" id="btnModalRefreshTunnel" style="padding: 6px 16px; font-size: 0.82rem;">
+          <i class="fa-solid fa-arrows-rotate"></i> 주소 새로고침 (터널 재연결)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 사진 원본 크게 보기 모달 -->
+  <div class="modal-overlay" id="imagePreviewModal" style="cursor: pointer;">
+    <div class="modal-content" style="max-width: 900px; text-align: center; padding: 20px; cursor: default; background: #ffffff; box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
+      <button class="modal-close" id="btnClosePreviewModal" style="background:#ef4444; color:white; font-size:1.6rem; width:40px; height:40px; top:12px; right:12px; z-index:100; cursor:pointer;" title="닫기">&times;</button>
+      <div style="position:relative; max-height:75vh; display:flex; align-items:center; justify-content:center; overflow:hidden; border-radius:8px; background:#000;">
+        <img id="fullPreviewImage" src="" alt="사진 원본" style="max-width: 100%; max-height: 70vh; object-fit: contain; cursor: pointer;" title="사진을 클릭해도 닫힙니다">
+      </div>
+      <div id="fullPreviewCaption" style="margin-top: 14px; font-weight: 800; font-size: 1.15rem; color: #0f172a;"></div>
+      <div style="margin-top: 16px;">
+        <button class="btn btn-outline" id="btnBottomClosePreview" style="padding: 8px 28px; font-size: 0.95rem; font-weight: 800;">
+          <i class="fa-solid fa-xmark"></i> 닫기 (화면 아무 곳이나 클릭해도 닫힙니다)
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/admin.js"></script>
+</body>
+</html>
