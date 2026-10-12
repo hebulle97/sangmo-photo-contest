@@ -57,65 +57,65 @@
         </div>
       </div>
 
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; align-items: center;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; align-items: stretch;">
         
-        <!-- 접속 주소 정보 (방식 A) & 상시 노출 인라인 QR 코드 (팝업 불필요) -->
-        <div style="background: #f1f5f9; padding: 18px; border-radius: 12px; display:flex; gap:16px; align-items:center;">
+        <!-- 전신자 스마트폰 접속 주소 & 상시 노출 인라인 QR 코드 (겹침 방지 min-width:0 적용) -->
+        <div style="background: #f1f5f9; padding: 18px 20px; border-radius: 12px; display: flex; gap: 16px; align-items: center; min-width: 0; border: 1px solid #e2e8f0;">
           <!-- 상시 표출 인라인 QR -->
-          <div style="background:white; padding:8px; border-radius:10px; border:1px solid #cbd5e1; flex-shrink:0; text-align:center;">
-            <img id="inlineQrImage" src="" alt="접속 QR코드" style="width:100px; height:100px; display:block;">
-            <span style="font-size:0.72rem; font-weight:800; color:#475569; display:block; margin-top:2px;">모바일 QR</span>
+          <div style="background: white; padding: 8px; border-radius: 10px; border: 1px solid #cbd5e1; flex-shrink: 0; text-align: center; box-shadow: var(--shadow-sm);">
+            <img id="inlineQrImage" src="" alt="접속 QR코드" style="width: 100px; height: 100px; display: block;">
+            <span style="font-size: 0.72rem; font-weight: 800; color: #1e3a8a; display: block; margin-top: 4px;">스마트폰 QR</span>
           </div>
 
-          <div style="flex:1; min-width:0;">
-            <div style="font-size:0.85rem; font-weight:800; color:#475569; margin-bottom:6px;">
-              <i class="fa-solid fa-globe"></i> 전신자 스마트폰 접속 무료 주소 (방식 A)
+          <div style="flex: 1; min-width: 0; overflow: hidden;">
+            <div style="font-size: 0.92rem; font-weight: 800; color: #1e293b; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+              <i class="fa-solid fa-mobile-screen-button text-primary"></i> 전신자 스마트폰 접속 주소
             </div>
-            <div style="display:flex; align-items:center; gap:8px;">
-              <input type="text" id="publicUrlInput" class="form-control" style="font-weight:700; background:white; font-size:0.88rem;" readonly value="주소 생성 중...">
-              <button class="btn btn-primary" id="btnCopyUrl" title="주소 복사" style="padding:10px 14px;">
-                <i class="fa-regular fa-copy"></i>
+            <div style="display: flex; align-items: center; gap: 8px; width: 100%; min-width: 0; margin-bottom: 6px;">
+              <input type="text" id="publicUrlInput" class="form-control" style="font-weight: 700; background: white; font-size: 0.85rem; flex: 1; min-width: 0; width: 100%;" readonly value="주소 생성 중...">
+              <button class="btn btn-primary" id="btnCopyUrl" title="주소 복사" style="padding: 10px 14px; flex-shrink: 0; white-space: nowrap;">
+                <i class="fa-regular fa-copy"></i> 복사
               </button>
-              <button class="btn btn-outline" id="btnRefreshTunnel" title="인터넷 접속 주소 새로고침 / 터널 재연결" style="padding:10px 14px; background:white;">
+              <button class="btn btn-outline" id="btnRefreshTunnel" title="인터넷 접속 주소 새로고침" style="padding: 10px 14px; background: white; flex-shrink: 0;">
                 <i class="fa-solid fa-arrows-rotate"></i>
               </button>
             </div>
-            <p style="font-size: 0.78rem; color: #64748b; margin-top: 6px;">
-              * 스마트폰 카메라로 QR 코드를 비추면 즉시 접속됩니다. (팝업창 필요 없음)
+            <p style="font-size: 0.78rem; color: #64748b; margin: 0; line-height: 1.3;">
+              * 스마트폰 카메라로 QR 코드를 비추면 즉시 접속됩니다.
             </p>
           </div>
         </div>
 
         <!-- 5분 카운트다운 타이머 & 참여자 수 -->
-        <div style="background: #0f172a; color: white; padding: 18px; border-radius: 12px; display:flex; justify-content:space-between; align-items:center;">
+        <div style="background: #0f172a; color: white; padding: 18px 22px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; min-width: 0;">
           <div>
-            <div style="font-size:0.8rem; color:#94a3b8; font-weight:700;">투표 제한 시간 (5분)</div>
+            <div style="font-size: 0.8rem; color: #94a3b8; font-weight: 700;">투표 제한 시간 (5분)</div>
             <div id="adminTimer" style="font-size: 2.2rem; font-weight: 900; color: #fbbf24; font-variant-numeric: tabular-nums;">
               05:00
             </div>
           </div>
-          <div style="text-align:right;">
-            <div style="font-size:0.8rem; color:#94a3b8; font-weight:700;">실시간 참여 인원</div>
+          <div style="text-align: right;">
+            <div style="font-size: 0.8rem; color: #94a3b8; font-weight: 700;">실시간 참여 인원</div>
             <div id="totalVotersCount" style="font-size: 2.2rem; font-weight: 900; color: #38bdf8;">
-              0<span style="font-size:1.1rem; color:#94a3b8;">명</span>
+              0<span style="font-size: 1.1rem; color: #94a3b8;">명</span>
             </div>
           </div>
         </div>
 
         <!-- 투표 제어 버튼들 -->
-        <div style="display: flex; flex-direction: column; gap: 10px;">
-          <button class="btn btn-gold btn-lg" id="btnStartVote" style="width: 100%;">
+        <div style="display: flex; flex-direction: column; gap: 8px; min-width: 0;">
+          <button class="btn btn-gold btn-lg" id="btnStartVote" style="width: 100%; padding: 12px; font-size: 1.05rem;">
             <i class="fa-solid fa-play"></i> 5분 현장 투표 시작하기
           </button>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-            <button class="btn btn-outline" id="btnExtendVote" style="font-size:0.88rem;">
+            <button class="btn btn-outline" id="btnExtendVote" style="font-size: 0.88rem; padding: 8px 12px;">
               <i class="fa-solid fa-clock-rotate-left"></i> +1분 연장
             </button>
-            <button class="btn btn-danger" id="btnEndVote" style="font-size:0.88rem;">
+            <button class="btn btn-danger" id="btnEndVote" style="font-size: 0.88rem; padding: 8px 12px;">
               <i class="fa-solid fa-stop"></i> 즉시 마감
             </button>
           </div>
-          <button class="btn btn-outline" id="btnResetVote" style="width:100%; border-color:#f59e0b; color:#b45309; font-size:0.88rem; background:#fffbeb;" title="등록된 단체/사진은 유지하고 득표수와 투표 시간만 0표/05:00으로 초기화">
+          <button class="btn btn-outline" id="btnResetVote" style="width: 100%; border-color: #f59e0b; color: #b45309; font-size: 0.85rem; background: #fffbeb; padding: 8px;" title="등록된 단체/사진은 유지하고 득표수와 투표 시간만 0표/05:00으로 초기화">
             <i class="fa-solid fa-arrow-rotate-left"></i> 현장 투표 초기화 (0표 리셋)
           </button>
         </div>

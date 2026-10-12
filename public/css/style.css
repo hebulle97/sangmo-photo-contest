@@ -460,13 +460,21 @@ body {
 .mobile-header {
   background: var(--primary-dark);
   color: white;
-  padding: 20px 16px;
+  padding: 22px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   border-bottom: 3px solid var(--accent-gold);
 }
 .mobile-header img {
   height: 48px;
-  margin-bottom: 8px;
+  width: auto;
+  max-width: 80%;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto 10px auto;
 }
 .mobile-card {
   background: white;
