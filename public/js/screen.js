@@ -99,8 +99,34 @@ function updateScreenUI() {
   renderBlindBars(isEnded);
 }
 
+let blindShuffleOrder = null;
+let lastShuffleRoundId = null;
+
+// 회차별 고유 무작위 셔플 (투표 진행 중에는 순서가 고정되어 막대가 요동치지 않음)
+function getShuffledBlindFinalists() {
+  if (!finalists || finalists.length === 0) return [];
+
+  const currentRound = votingState.roundId || 'default-round';
+  if (!blindShuffleOrder || lastShuffleRoundId !== currentRound || blindShuffleOrder.length !== finalists.length) {
+    lastShuffleRoundId = currentRound;
+    const indices = finalists.map((_, i) => i);
+    // Fisher-Yates 셔플로 기호 1~5번과 A~E 순서를 무작위 매핑
+    for (let i = indices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+    // 기호 순서 [0,1,2,3,4]와 우연히 같으면 스왑
+    if (indices.length > 1 && indices.every((val, idx) => val === idx)) {
+      [indices[0], indices[1]] = [indices[1], indices[0]];
+    }
+    blindShuffleOrder = indices;
+  }
+
+  return blindShuffleOrder.map(idx => finalists[idx]).filter(Boolean);
+}
+
 // 블라인드 막대 그래프 렌더링
-// isEnded === false : 기호 번호 및 단체명 비공개 (물음표 또는 블라인드 A, B, C, D, E)
+// isEnded === false : 기호 번호 및 단체명 비공개 (물음표 또는 블라인드 A, B, C, D, E 무작위 셔플 매핑)
 // isEnded === true : 기호 1~5번 및 단체명/작품명 화려하게 언베일 및 순위별 점수 노출
 function renderBlindBars(isEnded) {
   if (!finalists || finalists.length === 0) {
@@ -117,10 +143,11 @@ function renderBlindBars(isEnded) {
     blindNotice.textContent = '* 공정한 투표를 위해 5분 종료 전까지 후보 정보가 비공개되며 득표수만 실시간 변동됩니다.';
     rankScoreGuide.style.display = 'none';
 
-    // 득표순 또는 임의 순서로 블라인드 카드 렌더링 (후보 식별 불가능하도록 슬롯 인덱스 기반)
+    // 기호 번호와 일치하지 않도록 회차별 무작위 셔플된 후보작 A~E 표출
     const blindLabels = ['후보작 A', '후보작 B', '후보작 C', '후보작 D', '후보작 E'];
+    const shuffledList = getShuffledBlindFinalists();
 
-    blindBarsContainer.innerHTML = finalists.map((f, idx) => {
+    blindBarsContainer.innerHTML = shuffledList.map((f, idx) => {
       const votes = f.photo2VoteCount || 0;
       const pct = Math.round((votes / maxVotes) * 100);
 
@@ -191,7 +218,7 @@ function renderBlindBars(isEnded) {
 }
 
 // -------------------------------------------------------------
-// 후보 5편 순차 상영 모드 (기안서 3-2: 각 15초씩 순차 송출)
+// 후보 5편 순차 상영 모드 (각 7초씩 순차 송출)
 // -------------------------------------------------------------
 function showIntroSlide(index) {
   if (!finalists || finalists.length === 0) return;
@@ -206,8 +233,8 @@ function showIntroSlide(index) {
   introPhotoDesc.textContent = f.photo2Desc || '상모성당 25주년의 은총이 깃든 활동의 한 순간';
   introCounter.textContent = `${currentSlideIndex + 1} / ${finalists.length}`;
 
-  // 프로그레스 바 리셋
-  slideSecondsLeft = 15;
+  // 프로그레스 바 리셋 (7초)
+  slideSecondsLeft = 7;
   introSlideProgress.style.width = '0%';
 }
 
@@ -220,10 +247,10 @@ function startSlideLoop() {
   let elapsed = 0;
   slideProgressInterval = setInterval(() => {
     elapsed += 0.1;
-    const pct = (elapsed / 15) * 100;
+    const pct = (elapsed / 7) * 100;
     introSlideProgress.style.width = `${Math.min(100, pct)}%`;
 
-    if (elapsed >= 15) {
+    if (elapsed >= 7) {
       elapsed = 0;
       showIntroSlide(currentSlideIndex + 1);
     }

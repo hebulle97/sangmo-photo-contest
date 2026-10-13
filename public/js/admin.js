@@ -185,6 +185,23 @@ function updateUI() {
 
   // 본선 5개 후보 슬롯 렌더링
   renderFinalistsSlots();
+
+  // 순위별 상금 및 상품 설정값 입력창 동기화 (포커스 중이 아닐 때만)
+  const prizes = currentSettings.prizes || {};
+  const setPrizeVal = (id, defVal) => {
+    const el = document.getElementById(id);
+    if (el && !el.matches(':focus')) {
+      el.value = (prizes[id.replace('prize', '').charAt(0).toLowerCase() + id.replace('prize', '').slice(1)] !== undefined)
+        ? prizes[id.replace('prize', '').charAt(0).toLowerCase() + id.replace('prize', '').slice(1)]
+        : defVal;
+    }
+  };
+  setPrizeVal('prizeGrand', '상금 현금 300,000원');
+  setPrizeVal('prizeTopGroup', '현금 200,000원');
+  setPrizeVal('prizeTopDistrict', '현금 200,000원');
+  setPrizeVal('prizeSecondGroup', '현금 150,000원');
+  setPrizeVal('prizeSecondDistrict', '현금 150,000원');
+  setPrizeVal('prizeHarmony', '각 100,000원');
 }
 
 // 본선 후보 5개 슬롯 렌더링
@@ -681,6 +698,38 @@ btnSaveFinalists.addEventListener('click', async () => {
     alert('후보 설정 오류: ' + err.message);
   }
 });
+
+// 순위별 상금 및 상품 설정 저장
+const btnSavePrizes = document.getElementById('btnSavePrizes');
+if (btnSavePrizes) {
+  btnSavePrizes.addEventListener('click', async () => {
+    const prizes = {
+      grand: (document.getElementById('prizeGrand').value || '').trim() || '상금 현금 300,000원',
+      topGroup: (document.getElementById('prizeTopGroup').value || '').trim() || '현금 200,000원',
+      topDistrict: (document.getElementById('prizeTopDistrict').value || '').trim() || '현금 200,000원',
+      secondGroup: (document.getElementById('prizeSecondGroup').value || '').trim() || '현금 150,000원',
+      secondDistrict: (document.getElementById('prizeSecondDistrict').value || '').trim() || '현금 150,000원',
+      harmony: (document.getElementById('prizeHarmony').value || '').trim() || '각 100,000원'
+    };
+
+    try {
+      const res = await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prizes })
+      });
+      const result = await res.json();
+      if (result.success) {
+        showToast('각 순위별 상금 및 상품 설정이 저장되었습니다!\n[최종 결과 발표] 화면에 즉시 반영됩니다.', 'success');
+        fetchState();
+      } else {
+        showToast('저장 실패: ' + (result.error || '오류 발생'), 'error');
+      }
+    } catch (err) {
+      showToast('네트워크 오류: ' + err.message, 'error');
+    }
+  });
+}
 
 // 필터 버튼 클릭
 document.querySelectorAll('.filter-btn').forEach(btn => {

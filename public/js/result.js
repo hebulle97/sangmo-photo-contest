@@ -59,53 +59,55 @@ function renderAwards(data) {
     secondGroupPrize,
     secondDistrictPrize,
     harmonyPrizes,
-    ranking
+    ranking,
+    prizes = {}
   } = data;
 
-  // 1. 대상 렌더링
+  // 1. 대상 렌더링 (대형 스크린 시원하게 꽉 채우기)
   if (grandPrize) {
+    const grandPrizeText = prizes.grand || '종합 대상 (상금 현금 300,000원)';
     grandPrizeSection.innerHTML = `
-      <div class="award-card award-grand">
-        <div class="award-badge-ribbon" style="background:#f59e0b; color:#0f172a;">
-          <i class="fa-solid fa-crown"></i> 종합 대상 (상금 현금 300,000원)
+      <div class="award-card award-grand" style="padding: 32px;">
+        <div class="award-badge-ribbon" style="background:#f59e0b; color:#0f172a; font-size:1.15rem; padding: 8px 24px;">
+          <i class="fa-solid fa-crown"></i> ${grandPrizeText}
         </div>
-        <div style="display:grid; grid-template-columns: 420px 1fr; gap: 32px; align-items: center;">
-          <div style="position:relative; border-radius:14px; overflow:hidden; border:2px solid #f59e0b; height:280px;">
+        <div style="display:grid; grid-template-columns: minmax(480px, 46%) 1fr; gap: 36px; align-items: center;">
+          <div style="position:relative; border-radius:16px; overflow:hidden; border:3px solid #f59e0b; height:380px; box-shadow: 0 12px 30px rgba(0,0,0,0.5);">
             <img src="${grandPrize.photo2Url}" style="width:100%; height:100%; object-fit:cover;" alt="대상 작품">
-            <div style="position:absolute; bottom:10px; left:10px; background:rgba(0,0,0,0.7); padding:4px 12px; border-radius:6px; color:#fbbf24; font-size:0.85rem; font-weight:700;">
+            <div style="position:absolute; bottom:14px; left:14px; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px); padding:6px 16px; border-radius:8px; color:#fbbf24; font-size:1rem; font-weight:800; border:1px solid rgba(245, 158, 11, 0.4);">
               [사진 2] ${grandPrize.photo2Title}
             </div>
           </div>
           <div>
-            <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
-              <span class="badge badge-gold" style="font-size:1.1rem; padding:6px 16px;">
+            <div style="display:flex; align-items:center; gap:14px; margin-bottom:14px;">
+              <span class="badge badge-gold" style="font-size:1.2rem; padding:8px 20px;">
                 ${grandPrize.category}
               </span>
-              <span style="font-size:1.1rem; color:#94a3b8; font-weight:700;">출석률: ${grandPrize.attendanceRate}%</span>
+              <span style="font-size:1.2rem; color:#94a3b8; font-weight:800;">출석률: <strong style="color:#34d399;">${grandPrize.attendanceRate}%</strong></span>
             </div>
-            <h2 style="font-size: 2.8rem; font-weight: 900; color: white; margin-bottom: 12px;">
+            <h2 style="font-size: 3.2rem; font-weight: 900; color: white; margin-bottom: 12px; letter-spacing: -0.02em;">
               ${grandPrize.name}
             </h2>
-            <div style="font-size: 1.4rem; color: #fde047; font-weight: 800; margin-bottom: 20px;">
+            <div style="font-size: 1.6rem; color: #fde047; font-weight: 900; margin-bottom: 22px;">
               "${grandPrize.photo2Title}"
             </div>
-            <p style="font-size: 1.1rem; color: #cbd5e1; margin-bottom: 24px; line-height: 1.6;">
+            <p style="font-size: 1.15rem; color: #cbd5e1; margin-bottom: 28px; line-height: 1.6;">
               ${grandPrize.photo2Desc || '상모성당 25주년의 기쁨과 일치를 가장 아름답게 표현한 영예의 대상 수상작'}
             </p>
-            <div style="display: flex; gap: 20px; align-items: center; background: rgba(0,0,0,0.4); padding: 14px 20px; border-radius: 12px; border: 1px solid rgba(245, 158, 11, 0.3);">
+            <div style="display: flex; gap: 24px; align-items: center; background: rgba(0,0,0,0.5); padding: 18px 26px; border-radius: 14px; border: 1px solid rgba(245, 158, 11, 0.4);">
               <div>
-                <span style="font-size:0.85rem; color:#94a3b8;">사진 1 출석점수:</span>
-                <strong style="font-size:1.2rem; color:#93c5fd; margin-left:6px;">${grandPrize.photo1Score.toFixed(1)}점</strong>
+                <span style="font-size:0.92rem; color:#94a3b8;">사진 1 출석점수:</span>
+                <strong style="font-size:1.4rem; color:#93c5fd; margin-left:6px;">${grandPrize.photo1Score.toFixed(1)}점</strong>
               </div>
-              <div style="color:#64748b;">+</div>
+              <div style="color:#64748b; font-size:1.3rem;">+</div>
               <div>
-                <span style="font-size:0.85rem; color:#94a3b8;">사진 2 투표점수:</span>
-                <strong style="font-size:1.2rem; color:#fcd34d; margin-left:6px;">${(grandPrize.photo2Score || 0).toFixed(1)}점</strong>
+                <span style="font-size:0.92rem; color:#94a3b8;">사진 2 투표점수:</span>
+                <strong style="font-size:1.4rem; color:#fcd34d; margin-left:6px;">${(grandPrize.photo2Score || 0).toFixed(1)}점</strong>
               </div>
-              <div style="color:#64748b;">=</div>
+              <div style="color:#64748b; font-size:1.3rem;">=</div>
               <div>
-                <span style="font-size:0.85rem; color:#94a3b8;">최종 합산 총점:</span>
-                <strong style="font-size:1.8rem; color:#fbbf24; margin-left:8px;">${grandPrize.finalTotalScore.toFixed(1)}점</strong>
+                <span style="font-size:0.92rem; color:#94a3b8;">최종 합산 총점:</span>
+                <strong style="font-size:2.2rem; color:#fbbf24; margin-left:10px;">${grandPrize.finalTotalScore.toFixed(1)}점</strong>
               </div>
             </div>
           </div>
@@ -114,44 +116,51 @@ function renderAwards(data) {
     `;
   }
 
-  // 2. 최우수상 & 우수상 렌더링
+  // 2. 최우수상 & 우수상 렌더링 (부문 문구 완전 삭제, 깔끔한 명칭 적용)
   const majorList = [
-    { title: '최우수상 (위원회/단체/레지오 부문)', prize: '현금 200,000원', data: topGroupPrize, color: '#3b82f6' },
-    { title: '최우수상 (구역·반 부문)', prize: '현금 200,000원', data: topDistrictPrize, color: '#3b82f6' },
-    { title: '우수상 (위원회/단체/레지오 부문)', prize: '현금 150,000원', data: secondGroupPrize, color: '#a855f7' },
-    { title: '우수상 (구역·반 부문)', prize: '현금 150,000원', data: secondDistrictPrize, color: '#a855f7' }
+    { title: '최우수상', prize: prizes.topGroup || '현금 200,000원', data: topGroupPrize, color: '#3b82f6' },
+    { title: '최우수상', prize: prizes.topDistrict || '현금 200,000원', data: topDistrictPrize, color: '#3b82f6' },
+    { title: '우수상', prize: prizes.secondGroup || '현금 150,000원', data: secondGroupPrize, color: '#a855f7' },
+    { title: '우수상', prize: prizes.secondDistrict || '현금 150,000원', data: secondDistrictPrize, color: '#a855f7' }
   ];
 
   majorPrizesSection.innerHTML = majorList.map(item => {
     const g = item.data;
     if (!g) return '';
     return `
-      <div class="award-card" style="border-color: ${item.color};">
-        <div class="award-badge-ribbon" style="background:${item.color}; color:white;">
+      <div class="award-card" style="border-color: ${item.color}; padding: 22px;">
+        <div class="award-badge-ribbon" style="background:${item.color}; color:white; font-size:0.95rem; padding: 5px 14px;">
           ${item.prize}
         </div>
-        <div style="font-size:0.95rem; font-weight:800; color:${item.color}; margin-bottom:6px;">
-          ${item.title}
+        <div style="font-size:1.15rem; font-weight:900; color:${item.color}; margin-bottom:6px; letter-spacing:-0.01em;">
+          <i class="fa-solid fa-medal"></i> ${item.title}
         </div>
-        <h3 style="font-size: 1.8rem; font-weight: 800; color: white; margin-bottom: 8px;">
+        <h3 style="font-size: 1.85rem; font-weight: 900; color: white; margin-bottom: 6px;">
           ${g.name}
         </h3>
-        <div style="font-size:1.1rem; font-weight:700; color:var(--accent-gold-light); margin-bottom:14px;">
+        <div style="font-size:1.1rem; font-weight:800; color:var(--accent-gold-light); margin-bottom:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
           "${g.photo2Title}"
         </div>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:16px;">
-          <img src="${g.photo1Url}" style="width:100%; height:110px; object-fit:cover; border-radius:8px;" alt="단체사진">
-          <img src="${g.photo2Url}" style="width:100%; height:110px; object-fit:cover; border-radius:8px;" alt="활동사진">
+          <div style="position:relative; border-radius:10px; overflow:hidden; height:135px; border:1px solid #334155;">
+            <img src="${g.photo1Url}" style="width:100%; height:100%; object-fit:cover;" alt="단체사진">
+            <span style="position:absolute; bottom:6px; left:6px; background:rgba(0,0,0,0.7); font-size:0.75rem; color:#94a3b8; padding:2px 6px; border-radius:4px;">사진 1 단체</span>
+          </div>
+          <div style="position:relative; border-radius:10px; overflow:hidden; height:135px; border:1px solid #334155;">
+            <img src="${g.photo2Url}" style="width:100%; height:100%; object-fit:cover;" alt="활동사진">
+            <span style="position:absolute; bottom:6px; left:6px; background:rgba(0,0,0,0.7); font-size:0.75rem; color:#fbbf24; padding:2px 6px; border-radius:4px;">사진 2 활동</span>
+          </div>
         </div>
-        <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.3); padding:10px 14px; border-radius:8px;">
-          <span style="font-size:0.85rem; color:#94a3b8;">출석률: <strong>${g.attendanceRate}%</strong></span>
-          <span style="font-size:1.2rem; font-weight:900; color:#fbbf24;">총점 ${g.finalTotalScore.toFixed(1)}점</span>
+        <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.4); padding:12px 16px; border-radius:10px; border:1px solid rgba(255,255,255,0.06);">
+          <span style="font-size:0.9rem; color:#cbd5e1;">출석률: <strong style="color:#38bdf8; font-size:1.05rem;">${g.attendanceRate}%</strong></span>
+          <span style="font-size:1.3rem; font-weight:900; color:#fbbf24;">총점 ${g.finalTotalScore.toFixed(1)}점</span>
         </div>
       </div>
     `;
   }).join('');
 
   // 3. 화합상 렌더링
+  const harmonyPrizeText = prizes.harmony || '각 100,000원';
   if (harmonyPrizes && harmonyPrizes.length > 0) {
     harmonyPrizesList.innerHTML = harmonyPrizes.map(g => `
       <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.4); padding: 16px; border-radius: 12px; display:flex; justify-content:space-between; align-items:center;">
@@ -161,7 +170,7 @@ function renderAwards(data) {
           <div style="font-size: 0.85rem; color: #a7f3d0; margin-top: 2px;">출석률 100% (${g.attendedCount}/${g.registeredCount}명 전원 참석)</div>
         </div>
         <div style="text-align:right;">
-          <span class="badge badge-gold" style="font-size:0.85rem; font-weight:800;">100,000원</span>
+          <span class="badge badge-gold" style="font-size:0.85rem; font-weight:800;">${harmonyPrizeText}</span>
         </div>
       </div>
     `).join('');
@@ -200,6 +209,20 @@ function getCategoryBadge(category) {
     case '꾸리아(레지오마리애)': return 'badge-purple';
     default: return 'badge-green';
   }
+}
+
+// 실시간 소켓 업데이트 연동
+if (typeof io !== 'undefined') {
+  const socket = io();
+  socket.on('settings_updated', () => {
+    loadAwards();
+  });
+  socket.on('vote_updated', () => {
+    loadAwards();
+  });
+  socket.on('voting_status', () => {
+    loadAwards();
+  });
 }
 
 // 초기화

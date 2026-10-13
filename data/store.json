@@ -9,7 +9,15 @@
     "publicUrl": "https://sangmo-photo-contest.onrender.com",
     "localIp": "192.168.163.160",
     "adminId": "admin",
-    "adminPw": "sangmo25"
+    "adminPw": "sangmo25",
+    "prizes": {
+      "grand": "상금 현금 300,000원",
+      "topGroup": "현금 200,000원",
+      "topDistrict": "현금 200,000원",
+      "secondGroup": "현금 150,000원",
+      "secondDistrict": "현금 150,000원",
+      "harmony": "각 100,000원"
+    }
   },
   "votingState": {
     "status": "ready",

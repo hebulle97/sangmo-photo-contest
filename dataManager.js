@@ -555,19 +555,26 @@ class DataManager {
     const secondDistrictPrize = remainingDistrict.length > 0 ? remainingDistrict[0] : null;
     if (secondDistrictPrize) awardedIds.add(secondDistrictPrize.id);
 
-    // 4. 화합상 (다수): 사진 1 출석률 100%를 달성하여 성실히 출품한 모임 (상위 수상팀 제외 전 모임) (각 100,000원)
-    const harmonyPrizes = allGroups.filter(g => {
-      return !awardedIds.has(g.id) && g.attendanceRate >= 100;
-    });
+    // 관리자가 설정한 순위별 상금/상품 (미설정 시 기본값)
+    const defaultPrizes = {
+      grand: "상금 현금 300,000원",
+      topGroup: "현금 200,000원",
+      topDistrict: "현금 200,000원",
+      secondGroup: "현금 150,000원",
+      secondDistrict: "현금 150,000원",
+      harmony: "각 100,000원"
+    };
+    const prizes = { ...defaultPrizes, ...(this.data.settings.prizes || {}) };
 
     return {
-      grandPrize,         // 대상 (30만원)
-      topGroupPrize,      // 최우수상 - 위원회/단체/레지오 (20만원)
-      topDistrictPrize,   // 최우수상 - 구역/반 (20만원)
-      secondGroupPrize,   // 우수상 - 위원회/단체/레지오 (15만원)
-      secondDistrictPrize,// 우수상 - 구역/반 (15만원)
-      harmonyPrizes,      // 화합상 (각 10만원)
-      ranking: allGroups  // 전체 종합 순위표
+      grandPrize,         // 대상
+      topGroupPrize,      // 최우수상 - 위원회/단체/레지오
+      topDistrictPrize,   // 최우수상 - 구역/반
+      secondGroupPrize,   // 우수상 - 위원회/단체/레지오
+      secondDistrictPrize,// 우수상 - 구역/반
+      harmonyPrizes,      // 화합상
+      ranking: allGroups, // 전체 종합 순위표
+      prizes              // 순위별 상금 및 상품 설정값
     };
   }
 
