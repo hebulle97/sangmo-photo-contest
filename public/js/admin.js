@@ -819,11 +819,15 @@ async function loadQrCode(type = currentQrType) {
 }
 
 // QR 코드 모달 표시
-btnShowQr.addEventListener('click', () => {
-  loadQrCode('tunnel');
-  qrModal.classList.add('active');
-});
-btnCloseQrModal.addEventListener('click', () => qrModal.classList.remove('active'));
+if (btnShowQr) {
+  btnShowQr.addEventListener('click', () => {
+    loadQrCode('tunnel');
+    qrModal.classList.add('active');
+  });
+}
+if (btnCloseQrModal) {
+  btnCloseQrModal.addEventListener('click', () => qrModal.classList.remove('active'));
+}
 
 // QR 탭 전환
 const btnQrTabTunnel = document.getElementById('btnQrTabTunnel');

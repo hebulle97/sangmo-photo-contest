@@ -130,36 +130,40 @@
 
     </section>
 
-    <!-- [뷰 2] 실시간 투표 중계 & 블라인드 현황 모드 (100vh 스크롤 제로 핏) -->
-    <section id="viewVote" style="display: none; height: 100%; min-height: 0; grid-template-columns: 340px 1fr; gap: 16px; overflow: hidden;">
+    <!-- [뷰 2] 실시간 투표 중계 & 블라인드 현황 모드 (100vh 스크롤 제로 핏, 좌측 초대형 QR 영역 46% 배치) -->
+    <section id="viewVote" style="display: none; height: 100%; min-height: 0; grid-template-columns: 46% 54%; gap: 20px; overflow: hidden;">
 
-      <!-- 좌측: 대형 QR 코드 및 접속 안내 -->
-      <div style="height: 100%; min-height: 0; background: rgba(19, 28, 46, 0.9); border: 2px solid rgba(245, 158, 11, 0.4); border-radius: 14px; padding: 18px 20px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-glow); overflow: hidden;">
-        <div>
-          <div class="badge badge-gold" style="font-size: 0.85rem; padding: 4px 14px; margin-bottom: 8px;">
-            스마트폰 모바일 투표
+      <!-- 좌측: 빔프로젝터용 초대형 QR 코드 및 접속 안내 (화면 절반 크기) -->
+      <div style="height: 100%; min-height: 0; background: rgba(19, 28, 46, 0.95); border: 2px solid rgba(245, 158, 11, 0.55); border-radius: 16px; padding: 18px 24px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; align-items: center; box-shadow: var(--shadow-glow); overflow: hidden;">
+        <div style="width: 100%;">
+          <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 6px;">
+            <span class="badge badge-gold" style="font-size: 0.95rem; padding: 5px 16px;">
+              스마트폰 모바일 투표
+            </span>
+            <span style="font-size: 0.95rem; color: #cbd5e1; font-weight: 700;">
+              기본 카메라로 스캔 · <strong style="color: #fbbf24;">1인 2표제</strong>
+            </span>
           </div>
-          <h3 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 4px;">
-            QR 코드를 스캔하세요!
+          <h3 style="font-size: 1.75rem; font-weight: 900; margin: 0; color: #ffffff; letter-spacing: -0.02em;">
+            스마트폰으로 QR 코드를 스캔하세요!
           </h3>
-          <p style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 12px;">
-            기본 카메라로 스캔 · <strong>1인 2표제</strong>
-          </p>
-
-          <!-- QR 코드 이미지 -->
-          <div style="background: white; padding: 10px; border-radius: 12px; display: inline-block; box-shadow: var(--shadow-md);">
-            <img id="screenQrImage" src="" alt="접속 QR코드" style="width: 170px; height: 170px; display: block;">
-          </div>
-
-          <div id="screenQrUrl" style="margin-top: 10px; font-size: 0.8rem; font-weight: 800; color: #38bdf8; word-break: break-all; max-height: 40px; overflow: hidden;">
-            접속 주소 로딩 중...
-          </div>
         </div>
 
-        <div style="background: rgba(255, 255, 255, 0.05); padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.1);">
-          <div style="font-size: 0.78rem; color: #94a3b8;">현재 총 투표 완료 인원</div>
-          <div id="screenVotersCount" style="font-size: 1.8rem; font-weight: 900; color: #34d399;">
-            0<span style="font-size: 1rem; color: #94a3b8;">명</span>
+        <!-- 초대형 QR 코드 이미지 (빔프로젝터 원거리 스캔 최적화) -->
+        <div style="background: white; padding: 16px; border-radius: 18px; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 12px 32px rgba(0,0,0,0.45); border: 4px solid #fbbf24;">
+          <img id="screenQrImage" src="" alt="접속 QR코드" style="width: min(440px, 50vh); height: min(440px, 50vh); object-fit: contain; display: block;">
+        </div>
+
+        <div style="width: 100%; display: flex; flex-direction: column; gap: 8px;">
+          <div id="screenQrUrl" style="font-size: 1.05rem; font-weight: 800; color: #38bdf8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            접속 주소 로딩 중...
+          </div>
+
+          <div style="background: rgba(255, 255, 255, 0.06); padding: 10px 22px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.12); display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 1rem; font-weight: 800; color: #cbd5e1;">현재 총 투표 완료 인원</span>
+            <div id="screenVotersCount" style="font-size: 2rem; font-weight: 900; color: #34d399; line-height: 1;">
+              0<span style="font-size: 1.1rem; color: #94a3b8; margin-left: 4px;">명</span>
+            </div>
           </div>
         </div>
       </div>
