@@ -168,7 +168,7 @@ function updateUI() {
     votingStatusBadge.className = 'badge badge-purple';
     votingStatusBadge.innerHTML = '<i class="fa-solid fa-flag-checkered"></i> 투표 마감 완료';
     btnStartVote.disabled = false;
-    btnStartVote.innerHTML = '<i class="fa-solid fa-rotate-right"></i> 투표 다시 시작하기';
+    btnStartVote.innerHTML = '<i class="fa-solid fa-play"></i> 5분 현장 투표 시작하기';
   } else {
     votingStatusBadge.className = 'badge badge-gold';
     votingStatusBadge.innerHTML = '<i class="fa-solid fa-circle-dot"></i> 대기 상태';
@@ -705,14 +705,13 @@ btnStartVote.addEventListener('click', async () => {
     }
   }
 
-  // 기존 투표 내역이 있는 경우 안전 경고
   const existingVoters = currentVotingState.totalVoters || 0;
   if (existingVoters > 0 || currentVotingState.status === 'ended') {
-    if (!confirm(`⚠️ 안내: 이미 진행된 투표 내역(참여 ${existingVoters}명)이 존재합니다.\n\n새로 투표를 시작하면 이전 득표수와 집계가 0으로 초기화됩니다.\n정말 새로 투표를 시작하시겠습니까?`)) {
+    if (!confirm('기존 내역을 초기화하고 투표를 재시작하시겠습니까?')) {
       return;
     }
   } else {
-    if (!confirm('현장 5분 모바일 투표를 시작하시겠습니까?\n대형 스크린에 QR 코드가 송출되고 5분 카운트다운이 시작됩니다.')) {
+    if (!confirm('5분 현장 투표를 시작하시겠습니까?')) {
       return;
     }
   }

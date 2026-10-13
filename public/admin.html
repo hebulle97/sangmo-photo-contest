@@ -103,21 +103,18 @@
         </div>
 
         <!-- 투표 제어 버튼들 -->
-        <div style="display: flex; flex-direction: column; gap: 8px; min-width: 0;">
-          <button class="btn btn-gold btn-lg" id="btnStartVote" style="width: 100%; padding: 12px; font-size: 1.05rem;">
+        <div style="display: flex; flex-direction: column; justify-content: center; gap: 10px; min-width: 0;">
+          <button class="btn btn-gold btn-lg" id="btnStartVote" style="width: 100%; padding: 14px; font-size: 1.05rem;">
             <i class="fa-solid fa-play"></i> 5분 현장 투표 시작하기
           </button>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-            <button class="btn btn-outline" id="btnExtendVote" style="font-size: 0.88rem; padding: 8px 12px;">
+            <button class="btn btn-outline" id="btnExtendVote" style="font-size: 0.9rem; padding: 10px 12px;">
               <i class="fa-solid fa-clock-rotate-left"></i> +1분 연장
             </button>
-            <button class="btn btn-danger" id="btnEndVote" style="font-size: 0.88rem; padding: 8px 12px;">
+            <button class="btn btn-danger" id="btnEndVote" style="font-size: 0.9rem; padding: 10px 12px;">
               <i class="fa-solid fa-stop"></i> 즉시 마감
             </button>
           </div>
-          <button class="btn btn-outline" id="btnResetVote" style="width: 100%; border-color: #f59e0b; color: #b45309; font-size: 0.85rem; background: #fffbeb; padding: 8px;" title="등록된 단체/사진은 유지하고 득표수와 투표 시간만 0표/05:00으로 초기화">
-            <i class="fa-solid fa-arrow-rotate-left"></i> 현장 투표 초기화 (0표 리셋)
-          </button>
         </div>
 
       </div>
