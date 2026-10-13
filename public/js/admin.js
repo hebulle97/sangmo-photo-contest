@@ -110,6 +110,93 @@ restoreFileInput.addEventListener('change', async (e) => {
   reader.readAsText(file);
 });
 
+// 브라우저 로컬 안전 보관소 (서버 재배포 시 데이터 유실 방지 자동 복구)
+const LOCAL_BACKUP_KEY = 'sangmo_contest_auto_backup';
+
+function saveLocalBackup(stateData) {
+  if (!stateData || !Array.isArray(stateData.groups) || stateData.groups.length === 0) return;
+  try {
+    const existingRaw = localStorage.getItem(LOCAL_BACKUP_KEY);
+    const existing = existingRaw ? JSON.parse(existingRaw) : null;
+    // 기존 보관 데이터보다 단체 수가 같거나 많을 때만 갱신 (리셋된 빈 데이터로 덮어쓰기 방지)
+    if (!existing || !existing.groups || stateData.groups.length >= existing.groups.length) {
+      localStorage.setItem(LOCAL_BACKUP_KEY, JSON.stringify({
+        savedAt: new Date().toISOString(),
+        settings: stateData.settings,
+        groups: stateData.groups,
+        finalists: stateData.finalists
+      }));
+    }
+  } catch (err) {
+    console.warn('로컬 백업 저장 실패:', err);
+  }
+}
+
+function checkDataRecovery(serverGroups) {
+  try {
+    const backupRaw = localStorage.getItem(LOCAL_BACKUP_KEY);
+    if (!backupRaw) return;
+    const backup = JSON.parse(backupRaw);
+    if (!backup.groups || !Array.isArray(backup.groups)) return;
+
+    // 만약 브라우저에 보관된 팀 수가 서버 팀 수보다 많다면, 서버 재배포로 인한 유실 가능성 감지!
+    const banner = document.getElementById('dataRecoveryBanner');
+    const countEl = document.getElementById('recoveryGroupsCount');
+    if (backup.groups.length > (serverGroups ? serverGroups.length : 0)) {
+      if (banner && countEl) {
+        countEl.textContent = backup.groups.length;
+        banner.style.display = 'block';
+      }
+    } else {
+      if (banner) banner.style.display = 'none';
+    }
+  } catch (err) {
+    console.warn('복구 체크 오류:', err);
+  }
+}
+
+const btnApplyLocalRecovery = document.getElementById('btnApplyLocalRecovery');
+if (btnApplyLocalRecovery) {
+  btnApplyLocalRecovery.addEventListener('click', async () => {
+    try {
+      const backupRaw = localStorage.getItem(LOCAL_BACKUP_KEY);
+      if (!backupRaw) {
+        showToast('보관된 백업 데이터가 없습니다.', 'warning');
+        return;
+      }
+      const backup = JSON.parse(backupRaw);
+      const res = await fetch('/api/restore', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          settings: backup.settings,
+          groups: backup.groups,
+          votingState: currentVotingState
+        })
+      });
+      const result = await res.json();
+      if (result.success) {
+        showToast(`보관되어 있던 ${backup.groups.length}개 팀 데이터가 완벽하게 복원되었습니다!`, 'success');
+        const banner = document.getElementById('dataRecoveryBanner');
+        if (banner) banner.style.display = 'none';
+        fetchState();
+      } else {
+        showToast('복원 실패: ' + (result.error || '오류'), 'error');
+      }
+    } catch (err) {
+      showToast('복원 중 오류: ' + err.message, 'error');
+    }
+  });
+}
+
+const btnDismissRecovery = document.getElementById('btnDismissRecovery');
+if (btnDismissRecovery) {
+  btnDismissRecovery.addEventListener('click', () => {
+    const banner = document.getElementById('dataRecoveryBanner');
+    if (banner) banner.style.display = 'none';
+  });
+}
+
 const imagePreviewModal = document.getElementById('imagePreviewModal');
 const btnClosePreviewModal = document.getElementById('btnClosePreviewModal');
 const fullPreviewImage = document.getElementById('fullPreviewImage');
@@ -133,6 +220,8 @@ async function fetchState() {
     currentVotingState = data.votingState;
 
     updateUI();
+    saveLocalBackup(data);
+    checkDataRecovery(data.groups);
   } catch (err) {
     console.error('상태 로드 에러:', err);
   }

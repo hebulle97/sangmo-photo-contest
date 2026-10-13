@@ -40,6 +40,33 @@
 
   <main class="container" style="padding-top: 28px; padding-bottom: 60px;">
 
+    <!-- 데이터 유실 방지 자동 복원 알림 배너 -->
+    <div id="dataRecoveryBanner" style="display: none; background: #fffbeb; border: 2px solid #f59e0b; border-radius: 14px; padding: 18px 22px; margin-bottom: 24px; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.15);">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <div style="width: 44px; height: 44px; border-radius: 10px; background: #fef3c7; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <i class="fa-solid fa-clock-rotate-left" style="font-size: 1.4rem; color: #d97706;"></i>
+          </div>
+          <div>
+            <div style="font-weight: 800; font-size: 1.08rem; color: #92400e;">
+              서버 재배포로 인해 등록해 두신 팀 데이터가 초기화되었을 수 있습니다!
+            </div>
+            <div style="font-size: 0.88rem; color: #b45309; margin-top: 3px;">
+              브라우저에 안전하게 보관된 직전 등록 데이터(<strong id="recoveryGroupsCount" style="color: #d97706; font-size: 1rem;">0</strong>개 팀)가 있습니다. 클릭 한 번으로 즉시 복구할 수 있습니다.
+            </div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-gold" id="btnApplyLocalRecovery" style="font-weight: 800; padding: 10px 20px; font-size: 0.95rem;">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> 보관된 데이터 즉시 복원하기
+          </button>
+          <button class="btn btn-outline" id="btnDismissRecovery" style="padding: 10px 14px; font-size: 0.9rem;">
+            닫기
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- 1. 스마트폰 접속 상태 (접속 방식 A) 및 투표 제어 콘솔 -->
     <section class="card" style="border: 2px solid #3b82f6;">
       <div class="card-header">
