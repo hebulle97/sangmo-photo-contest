@@ -122,10 +122,10 @@ function formatTime(seconds) {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
-// 1. 초기 데이터 로드
+// 1. 초기 데이터 로드 (캐시 완전 방지)
 async function fetchState() {
   try {
-    const res = await fetch('/api/state');
+    const res = await fetch(`/api/state?t=${Date.now()}`, { cache: 'no-store' });
     const data = await res.json();
     currentSettings = data.settings;
     currentGroups = data.groups;
@@ -442,31 +442,83 @@ function calcRateAndScore() {
 formRegistered.addEventListener('input', calcRateAndScore);
 formAttended.addEventListener('input', calcRateAndScore);
 
-// 단체 등록/수정 모달 열기
+// 모달 폼 및 파일 선택창 완전 초기화 (이전/삭제된 게시물의 파일이나 텍스트가 남는 현상 원천 차단)
+function resetGroupFormState() {
+  if (groupForm) groupForm.reset();
+  const idInput = document.getElementById('groupId');
+  const p1Input = document.getElementById('formPhoto1');
+  const p2Input = document.getElementById('formPhoto2');
+  const p1Box = document.getElementById('currentPhoto1Box');
+  const p2Box = document.getElementById('currentPhoto2Box');
+
+  if (idInput) idInput.value = '';
+  if (p1Input) p1Input.value = '';
+  if (p2Input) p2Input.value = '';
+  if (p1Box) p1Box.style.display = 'none';
+  if (p2Box) p2Box.style.display = 'none';
+}
+
+// 단체 등록 모달 열기
 btnOpenAddModal.addEventListener('click', () => {
+  resetGroupFormState();
   modalTitle.textContent = '단체 출품작 신규 등록';
-  groupForm.reset();
-  document.getElementById('groupId').value = '';
   calcRateAndScore();
   groupModal.classList.add('active');
 });
 
-btnCloseModal.addEventListener('click', () => groupModal.classList.remove('active'));
-btnCancelModal.addEventListener('click', () => groupModal.classList.remove('active'));
+btnCloseModal.addEventListener('click', () => {
+  resetGroupFormState();
+  groupModal.classList.remove('active');
+});
+btnCancelModal.addEventListener('click', () => {
+  resetGroupFormState();
+  groupModal.classList.remove('active');
+});
 
-// 단체 수정
-window.editGroup = function(id) {
+// 단체 수정 모달 열기 (항상 파일 입력창을 먼저 비우고 서버 최신 데이터를 반영)
+window.editGroup = async function(id) {
+  resetGroupFormState();
+
+  try {
+    const res = await fetch(`/api/state?t=${Date.now()}`, { cache: 'no-store' });
+    const data = await res.json();
+    if (data && Array.isArray(data.groups)) {
+      currentGroups = data.groups;
+      currentFinalists = data.finalists || [];
+    }
+  } catch (e) {
+    // 네트워크 지연 시 현재 메모리 목록 사용
+  }
+
   const g = currentGroups.find(item => item.id === id);
-  if (!g) return;
+  if (!g) {
+    showToast('이미 삭제되었거나 존재하지 않는 게시물입니다.', 'warning');
+    updateUI();
+    return;
+  }
 
   modalTitle.textContent = `[${g.name}] 정보 수정`;
   document.getElementById('groupId').value = g.id;
-  document.getElementById('formCategory').value = g.category;
-  document.getElementById('formName').value = g.name;
-  document.getElementById('formRegistered').value = g.registeredCount;
-  document.getElementById('formAttended').value = g.attendedCount;
-  document.getElementById('formPhoto2Title').value = g.photo2Title;
-  document.getElementById('formPhoto2Desc').value = g.photo2Desc;
+  document.getElementById('formCategory').value = g.category || '구역·반';
+  document.getElementById('formName').value = g.name || '';
+  document.getElementById('formRegistered').value = g.registeredCount || 1;
+  document.getElementById('formAttended').value = g.attendedCount || 0;
+  document.getElementById('formPhoto2Title').value = g.photo2Title || '';
+  document.getElementById('formPhoto2Desc').value = g.photo2Desc || '';
+
+  const p1Box = document.getElementById('currentPhoto1Box');
+  const p1Thumb = document.getElementById('currentPhoto1Thumb');
+  const p2Box = document.getElementById('currentPhoto2Box');
+  const p2Thumb = document.getElementById('currentPhoto2Thumb');
+
+  if (p1Box && p1Thumb && g.photo1Url) {
+    p1Thumb.src = g.photo1Url;
+    p1Box.style.display = 'flex';
+  }
+  if (p2Box && p2Thumb && g.photo2Url) {
+    p2Thumb.src = g.photo2Url;
+    p2Box.style.display = 'flex';
+  }
 
   calcRateAndScore();
   groupModal.classList.add('active');
@@ -556,9 +608,10 @@ groupForm.addEventListener('submit', async (e) => {
     }
     const result = await res.json();
     if (result.success) {
+      resetGroupFormState();
       groupModal.classList.remove('active');
       showToast('단체 출품작이 정상적으로 저장되었습니다!', 'success');
-      fetchState();
+      await fetchState();
     } else {
       showToast('저장 실패: ' + (result.error || '오류 발생'), 'error');
     }
@@ -580,8 +633,11 @@ window.deleteGroup = async function(id) {
     const res = await fetch(`/api/groups/${id}`, { method: 'DELETE' });
     const result = await res.json();
     if (result.success) {
+      currentGroups = currentGroups.filter(item => item.id !== id);
+      resetGroupFormState();
+      updateUI();
       showToast('단체가 삭제되었습니다.', 'info');
-      fetchState();
+      await fetchState();
     }
   } catch (err) {
     showToast('삭제 오류: ' + err.message, 'error');

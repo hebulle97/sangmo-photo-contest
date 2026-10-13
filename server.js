@@ -29,6 +29,12 @@ const tunnelManager = new TunnelManager(PORT, (newUrl) => {
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/api', (req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  next();
+});
 app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads'), {
   maxAge: '7d',
   immutable: true
