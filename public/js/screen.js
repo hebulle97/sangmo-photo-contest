@@ -173,6 +173,49 @@ function renderBlindBars(isEnded) {
 
   } else {
     // [마감 후: 기호 및 단체명 전격 공개!]
+    const totalVotes = finalists.reduce((sum, f) => sum + (f.photo2VoteCount || 0), 0);
+    const hasVoters = (votingState.totalVoters || 0) > 0 || totalVotes > 0;
+
+    if (!hasVoters) {
+      // 투표자가 0명인 경우: 임의 순위 및 점수를 부여하지 않고 기호 순으로 안내
+      blindStatusTitle.innerHTML = '<i class="fa-solid fa-circle-info text-blue"></i> 현장 투표 종료 (투표 참여 내역 없음)';
+      blindNotice.textContent = '* 현장 모바일 투표 참여 인원이 없어 순위 점수가 부여되지 않았습니다.';
+      rankScoreGuide.style.display = 'none';
+
+      const orderedFinalists = [...finalists].sort((a, b) => (a.candidateNumber || 0) - (b.candidateNumber || 0));
+
+      blindBarsContainer.innerHTML = orderedFinalists.map((f) => {
+        return `
+          <div class="blind-bar-card" style="padding: 6px 12px; border: 1px solid #334155; background: var(--bg-dark-card);">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="badge badge-blue" style="font-size:0.85rem; padding:3px 10px; font-weight:900;">
+                  기호 ${f.candidateNumber}번
+                </span>
+                <img src="${f.photo2Url}" style="width:36px; height:28px; border-radius:4px; object-fit:cover; border:1px solid #475569;">
+                <div>
+                  <div style="font-size:0.88rem; font-weight:800; color:white;">
+                    "${f.photo2Title}" <span style="font-size:0.75rem; color:#94a3b8; font-weight:normal;">- ${f.name}</span>
+                  </div>
+                </div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:1.1rem; font-weight:900; color:#94a3b8;">
+                  0 <span style="font-size:0.75rem; color:#64748b;">표</span>
+                  <span class="badge" style="font-size:0.75rem; margin-left:6px; background:#334155; color:#cbd5e1;">점수 미부여</span>
+                </div>
+              </div>
+            </div>
+            <div class="bar-track" style="height:10px; margin-top:4px;">
+              <div class="bar-fill" style="width: 0%;"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      return;
+    }
+
+    // 정상적으로 투표가 진행된 경우 (1표 이상 투표 완료)
     blindStatusTitle.innerHTML = '<i class="fa-solid fa-trophy text-gold"></i> 5분 마감! 기호 공개 및 최종 득표 순위 확정';
     blindNotice.textContent = '* 현장 투표 결과에 따라 1위부터 5위까지 사진 2 평가 점수(50점~30점)가 확정되었습니다.';
     rankScoreGuide.style.display = 'flex';

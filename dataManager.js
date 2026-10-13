@@ -452,29 +452,41 @@ class DataManager {
     this.data.votingState.remainingSeconds = 0;
 
     const finalists = this.getFinalists();
-    // 득표수 내림차순 정렬 (득표수 동률 시 실제 참가 인원수 많은 순)
-    finalists.sort((a, b) => {
-      if (b.photo2VoteCount !== a.photo2VoteCount) {
-        return b.photo2VoteCount - a.photo2VoteCount;
-      }
-      return b.attendedCount - a.attendedCount;
-    });
+    const totalVotes = finalists.reduce((sum, f) => sum + (f.photo2VoteCount || 0), 0);
+    const totalVoters = this.data.votingState.totalVoters || 0;
 
-    const rankScores = [50, 45, 40, 35, 30];
-    finalists.forEach((group, index) => {
-      const score = rankScores[index] !== undefined ? rankScores[index] : 30;
-      group.photo2Score = score;
-      group.finalTotalScore = parseFloat((group.photo1Score + score).toFixed(1));
-    });
-
-    // 본선에 오르지 못한 일반 단체는 기본 점수 부여
-    const defaultScore = this.data.settings.defaultPhoto2Score || 20;
-    this.data.groups.forEach(group => {
-      if (!group.isFinalist) {
+    // 투표 참여자가 0명인 경우: 임의로 1~5위 차등 점수(50~30점)를 부여하지 않고 공정하게 기본 점수 일괄 부여
+    if (totalVoters === 0 || totalVotes === 0) {
+      const defaultScore = this.data.settings.defaultPhoto2Score || 20;
+      this.data.groups.forEach(group => {
         group.photo2Score = defaultScore;
         group.finalTotalScore = parseFloat((group.photo1Score + defaultScore).toFixed(1));
-      }
-    });
+      });
+    } else {
+      // 득표수 내림차순 정렬 (득표수 동률 시 실제 참가 인원수 많은 순)
+      finalists.sort((a, b) => {
+        if (b.photo2VoteCount !== a.photo2VoteCount) {
+          return b.photo2VoteCount - a.photo2VoteCount;
+        }
+        return b.attendedCount - a.attendedCount;
+      });
+
+      const rankScores = [50, 45, 40, 35, 30];
+      finalists.forEach((group, index) => {
+        const score = rankScores[index] !== undefined ? rankScores[index] : 30;
+        group.photo2Score = score;
+        group.finalTotalScore = parseFloat((group.photo1Score + score).toFixed(1));
+      });
+
+      // 본선에 오르지 못한 일반 단체는 기본 점수 부여
+      const defaultScore = this.data.settings.defaultPhoto2Score || 20;
+      this.data.groups.forEach(group => {
+        if (!group.isFinalist) {
+          group.photo2Score = defaultScore;
+          group.finalTotalScore = parseFloat((group.photo1Score + defaultScore).toFixed(1));
+        }
+      });
+    }
 
     this.saveData();
     return {
