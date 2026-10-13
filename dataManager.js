@@ -539,19 +539,26 @@ class DataManager {
     const rawPrizes = this.data.settings.prizes || {};
 
     const awardsConfig = {
-      grandTitle: rawConfig.grandTitle || "종합 대상",
-      grandPrize: rawConfig.grandPrize || rawPrizes.grand || "상금 현금 300,000원",
+      grandTitle: rawConfig.grandTitle || "대상",
+      grandPrize: rawConfig.grandPrize || rawPrizes.grand || "현금 20만원",
+      grandDesc: rawConfig.grandDesc || "종합 합산 점수 전체 1위",
       
       topTitle: rawConfig.topTitle || "최우수상",
       topCount: parseInt(rawConfig.topCount) >= 1 ? parseInt(rawConfig.topCount) : 2,
-      topPrize: rawConfig.topPrize || rawPrizes.topGroup || "현금 200,000원",
+      topPrize: rawConfig.topPrize || rawPrizes.topGroup || "각 현금 15만원",
       
       secondTitle: rawConfig.secondTitle || "우수상",
       secondCount: parseInt(rawConfig.secondCount) >= 1 ? parseInt(rawConfig.secondCount) : 2,
-      secondPrize: rawConfig.secondPrize || rawPrizes.secondGroup || "현금 150,000원",
+      secondPrize: rawConfig.secondPrize || rawPrizes.secondGroup || "각 현금 10만원",
       
       harmonyTitle: rawConfig.harmonyTitle || "화합상",
-      harmonyPrize: rawConfig.harmonyPrize || rawPrizes.harmony || "각 100,000원"
+      harmonyPrize: rawConfig.harmonyPrize || rawPrizes.harmony || "각 현금 7만원",
+      harmonyDesc: rawConfig.harmonyDesc || "상위 수상 5팀 제외 사진 1 출석률 100%를 달성하여 성실히 출품한 모임",
+
+      useParticipation: rawConfig.useParticipation !== false,
+      participationTitle: rawConfig.participationTitle || "참가상",
+      participationPrize: rawConfig.participationPrize || "각 현금 5만원",
+      participationDesc: rawConfig.participationDesc || "그 외 모든 참가팀"
     };
 
     const awardedIds = new Set();
@@ -609,6 +616,10 @@ class DataManager {
 
     // 4. 화합상: 출석률 100%를 달성한 단체 중 상위 수상작을 제외한 전원
     const harmonyPrizes = allGroups.filter(g => (g.attendanceRate || 0) >= 100 && !awardedIds.has(g.id));
+    harmonyPrizes.forEach(g => awardedIds.add(g.id));
+
+    // 5. 참가상: 상위 수상팀 및 화합상을 제외한 그 외 모든 참가팀
+    const participationPrizes = allGroups.filter(g => !awardedIds.has(g.id));
 
     // 하위 호환용 prizes 객체
     const prizes = {
@@ -617,7 +628,8 @@ class DataManager {
       topDistrict: awardsConfig.topPrize,
       secondGroup: awardsConfig.secondPrize,
       secondDistrict: awardsConfig.secondPrize,
-      harmony: awardsConfig.harmonyPrize
+      harmony: awardsConfig.harmonyPrize,
+      participation: awardsConfig.participationPrize
     };
 
     return {
@@ -629,6 +641,7 @@ class DataManager {
       secondGroupPrize: secondPrizes[0] || null,
       secondDistrictPrize: secondPrizes[1] || null,
       harmonyPrizes,
+      participationPrizes,
       ranking: allGroups,
       awardsConfig,
       prizes

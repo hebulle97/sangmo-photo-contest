@@ -198,19 +198,29 @@ function updateUI() {
     }
   };
 
-  setVal('awardGrandTitle', awardsCfg.grandTitle || '종합 대상');
-  setVal('prizeGrand', awardsCfg.grandPrize || prizes.grand || '상금 현금 300,000원');
+  setVal('awardGrandTitle', awardsCfg.grandTitle || '대상');
+  setVal('prizeGrand', awardsCfg.grandPrize || prizes.grand || '현금 20만원');
+  setVal('awardGrandDesc', awardsCfg.grandDesc || '종합 합산 점수 전체 1위');
 
   setVal('awardTopTitle', awardsCfg.topTitle || '최우수상');
   setVal('awardTopCount', awardsCfg.topCount !== undefined ? awardsCfg.topCount : 2);
-  setVal('prizeTop', awardsCfg.topPrize || prizes.topGroup || '현금 200,000원');
+  setVal('prizeTop', awardsCfg.topPrize || prizes.topGroup || '각 현금 15만원');
 
   setVal('awardSecondTitle', awardsCfg.secondTitle || '우수상');
   setVal('awardSecondCount', awardsCfg.secondCount !== undefined ? awardsCfg.secondCount : 2);
-  setVal('prizeSecond', awardsCfg.secondPrize || prizes.secondGroup || '현금 150,000원');
+  setVal('prizeSecond', awardsCfg.secondPrize || prizes.secondGroup || '각 현금 10만원');
 
   setVal('awardHarmonyTitle', awardsCfg.harmonyTitle || '화합상');
-  setVal('prizeHarmony', awardsCfg.harmonyPrize || prizes.harmony || '각 100,000원');
+  setVal('prizeHarmony', awardsCfg.harmonyPrize || prizes.harmony || '각 현금 7만원');
+  setVal('awardHarmonyDesc', awardsCfg.harmonyDesc || '상위 수상 5팀 제외 사진 1 출석률 100%를 달성하여 성실히 출품한 모임');
+
+  const elUsePart = document.getElementById('awardUseParticipation');
+  if (elUsePart) {
+    elUsePart.checked = awardsCfg.useParticipation !== false;
+  }
+  setVal('awardParticipationTitle', awardsCfg.participationTitle || '참가상');
+  setVal('prizeParticipation', awardsCfg.participationPrize || prizes.participation || '각 현금 5만원');
+  setVal('awardParticipationDesc', awardsCfg.participationDesc || '그 외 모든 참가팀');
 }
 
 // 본선 후보 5개 슬롯 렌더링
@@ -713,19 +723,26 @@ const btnSavePrizes = document.getElementById('btnSavePrizes');
 if (btnSavePrizes) {
   btnSavePrizes.addEventListener('click', async () => {
     const awardsConfig = {
-      grandTitle: (document.getElementById('awardGrandTitle')?.value || '').trim() || '종합 대상',
-      grandPrize: (document.getElementById('prizeGrand')?.value || '').trim() || '상금 현금 300,000원',
+      grandTitle: (document.getElementById('awardGrandTitle')?.value || '').trim() || '대상',
+      grandPrize: (document.getElementById('prizeGrand')?.value || '').trim() || '현금 20만원',
+      grandDesc: (document.getElementById('awardGrandDesc')?.value || '').trim() || '종합 합산 점수 전체 1위',
 
       topTitle: (document.getElementById('awardTopTitle')?.value || '').trim() || '최우수상',
       topCount: Math.max(1, parseInt(document.getElementById('awardTopCount')?.value) || 2),
-      topPrize: (document.getElementById('prizeTop')?.value || '').trim() || '현금 200,000원',
+      topPrize: (document.getElementById('prizeTop')?.value || '').trim() || '각 현금 15만원',
 
       secondTitle: (document.getElementById('awardSecondTitle')?.value || '').trim() || '우수상',
       secondCount: Math.max(1, parseInt(document.getElementById('awardSecondCount')?.value) || 2),
-      secondPrize: (document.getElementById('prizeSecond')?.value || '').trim() || '현금 150,000원',
+      secondPrize: (document.getElementById('prizeSecond')?.value || '').trim() || '각 현금 10만원',
 
       harmonyTitle: (document.getElementById('awardHarmonyTitle')?.value || '').trim() || '화합상',
-      harmonyPrize: (document.getElementById('prizeHarmony')?.value || '').trim() || '각 100,000원'
+      harmonyPrize: (document.getElementById('prizeHarmony')?.value || '').trim() || '각 현금 7만원',
+      harmonyDesc: (document.getElementById('awardHarmonyDesc')?.value || '').trim() || '상위 수상 5팀 제외 사진 1 출석률 100%를 달성하여 성실히 출품한 모임',
+
+      useParticipation: document.getElementById('awardUseParticipation')?.checked !== false,
+      participationTitle: (document.getElementById('awardParticipationTitle')?.value || '').trim() || '참가상',
+      participationPrize: (document.getElementById('prizeParticipation')?.value || '').trim() || '각 현금 5만원',
+      participationDesc: (document.getElementById('awardParticipationDesc')?.value || '').trim() || '그 외 모든 참가팀'
     };
 
     const prizes = {
@@ -734,7 +751,8 @@ if (btnSavePrizes) {
       topDistrict: awardsConfig.topPrize,
       secondGroup: awardsConfig.secondPrize,
       secondDistrict: awardsConfig.secondPrize,
-      harmony: awardsConfig.harmonyPrize
+      harmony: awardsConfig.harmonyPrize,
+      participation: awardsConfig.participationPrize
     };
 
     try {

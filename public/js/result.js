@@ -63,21 +63,36 @@ function renderAwards(data) {
     harmonyPrizes = [],
     ranking = [],
     awardsConfig = {},
+    participationPrizes = [],
     prizes = {}
   } = data;
 
   const cfg = {
-    grandTitle: awardsConfig.grandTitle || '종합 대상',
-    grandPrize: awardsConfig.grandPrize || prizes.grand || '상금 현금 300,000원',
+    grandTitle: awardsConfig.grandTitle || '대상',
+    grandPrize: awardsConfig.grandPrize || prizes.grand || '현금 20만원',
+    grandDesc: awardsConfig.grandDesc || '종합 합산 점수 전체 1위',
     topTitle: awardsConfig.topTitle || '최우수상',
     topCount: awardsConfig.topCount || 2,
-    topPrize: awardsConfig.topPrize || prizes.topGroup || '현금 200,000원',
+    topPrize: awardsConfig.topPrize || prizes.topGroup || '각 현금 15만원',
     secondTitle: awardsConfig.secondTitle || '우수상',
     secondCount: awardsConfig.secondCount || 2,
-    secondPrize: awardsConfig.secondPrize || prizes.secondGroup || '현금 150,000원',
+    secondPrize: awardsConfig.secondPrize || prizes.secondGroup || '각 현금 10만원',
     harmonyTitle: awardsConfig.harmonyTitle || '화합상',
-    harmonyPrize: awardsConfig.harmonyPrize || prizes.harmony || '각 100,000원'
+    harmonyPrize: awardsConfig.harmonyPrize || prizes.harmony || '각 현금 7만원',
+    harmonyDesc: awardsConfig.harmonyDesc || '상위 수상 5팀 제외 사진 1 출석률 100%를 달성하여 성실히 출품한 모임',
+    useParticipation: awardsConfig.useParticipation !== false,
+    participationTitle: awardsConfig.participationTitle || '참가상',
+    participationPrize: awardsConfig.participationPrize || '각 현금 5만원',
+    participationDesc: awardsConfig.participationDesc || '그 외 모든 참가팀'
   };
+
+  // 상단 퀵내비 텍스트 동기화
+  const elNavGrand = document.getElementById('navGrandText');
+  if (elNavGrand) elNavGrand.textContent = cfg.grandTitle;
+  const elNavMajor = document.getElementById('navMajorText');
+  if (elNavMajor) elNavMajor.textContent = `${cfg.topTitle} & ${cfg.secondTitle}`;
+  const elNavHarmony = document.getElementById('navHarmonyText');
+  if (elNavHarmony) elNavHarmony.textContent = cfg.harmonyTitle;
 
   // 1. 대상 렌더링 (대형 스크린 시원하게 꽉 채우기)
   if (grandPrize) {
@@ -202,10 +217,18 @@ function renderAwards(data) {
     `;
   }).join('');
 
-  // 3. 화합상 렌더링 및 헤더 문구 동적 연동
+  // 3. 화합상 렌더링 (헤더 제목에는 순수하게 '화합상'만 출력, 괄호 설명 제거!)
   const elHarmonyHeader = document.getElementById('harmonyHeaderTitle');
   if (elHarmonyHeader) {
-    elHarmonyHeader.textContent = `${cfg.harmonyTitle} (출석률 100% 달성 모임 전원 수상 · ${cfg.harmonyPrize})`;
+    elHarmonyHeader.textContent = cfg.harmonyTitle;
+  }
+  const elHarmonyBadge = document.getElementById('harmonyPrizeBadge');
+  if (elHarmonyBadge) {
+    elHarmonyBadge.textContent = cfg.harmonyPrize;
+  }
+  const elHarmonyDesc = document.getElementById('harmonyHeaderDesc');
+  if (elHarmonyDesc) {
+    elHarmonyDesc.textContent = cfg.harmonyDesc || '상위 수상 5팀 제외 사진 1 출석률 100%를 달성하여 성실히 출품한 모임';
   }
 
   if (harmonyPrizes && harmonyPrizes.length > 0) {
@@ -223,6 +246,44 @@ function renderAwards(data) {
     `).join('');
   } else {
     harmonyPrizesList.innerHTML = `<div style="color:#94a3b8; padding:16px;">상위 수상작 외에 출석률 100%를 달성한 추가 단체가 없습니다.</div>`;
+  }
+
+  // 4. 참가상 렌더링 (그 외 모든 참가팀)
+  const secParticipation = document.getElementById('secParticipation');
+  const navParticipation = document.getElementById('navParticipation');
+  const participationPrizesList = document.getElementById('participationPrizesList');
+
+  if (cfg.useParticipation && participationPrizes && participationPrizes.length > 0) {
+    if (secParticipation) secParticipation.style.display = 'block';
+    if (navParticipation) navParticipation.style.display = 'inline-flex';
+
+    const elPartTitle = document.getElementById('participationHeaderTitle');
+    const elPartBadge = document.getElementById('participationPrizeBadge');
+    const elPartDesc = document.getElementById('participationHeaderDesc');
+    const elNavPart = document.getElementById('navParticipationText');
+
+    if (elPartTitle) elPartTitle.textContent = cfg.participationTitle;
+    if (elPartBadge) elPartBadge.textContent = cfg.participationPrize;
+    if (elPartDesc) elPartDesc.textContent = cfg.participationDesc || '상위 수상작 외에 콘테스트에 열정적으로 함께해 주신 모든 참가팀';
+    if (elNavPart) elNavPart.textContent = cfg.participationTitle;
+
+    if (participationPrizesList) {
+      participationPrizesList.innerHTML = participationPrizes.map(g => `
+        <div style="background: rgba(14, 165, 233, 0.08); border: 1px solid rgba(14, 165, 233, 0.35); padding: 16px; border-radius: 12px; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <span class="badge badge-blue" style="font-size:0.75rem; margin-bottom:4px;">${g.category}</span>
+            <div style="font-size: 1.15rem; font-weight: 800; color: white;">${g.name}</div>
+            <div style="font-size: 0.85rem; color: #7dd3fc; margin-top: 2px;">출석률 ${g.attendanceRate}% (${g.attendedCount}/${g.registeredCount}명) · 총점 ${g.finalTotalScore.toFixed(1)}점</div>
+          </div>
+          <div style="text-align:right;">
+            <span class="badge badge-gold" style="font-size:0.85rem; font-weight:800;">${cfg.participationPrize}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+  } else {
+    if (secParticipation) secParticipation.style.display = 'none';
+    if (navParticipation) navParticipation.style.display = 'none';
   }
 
   // 4. 전체 종합 순위표 렌더링

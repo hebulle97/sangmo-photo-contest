@@ -97,15 +97,18 @@
   </header>
 
   <!-- 빠른 섹션 이동 퀵 내비게이션 바 -->
-  <nav style="background: rgba(19, 28, 46, 0.8); border-bottom: 1px solid var(--border-dark); padding: 8px 30px; display: flex; gap: 12px; justify-content: center; position: sticky; top: 68px; z-index: 999; backdrop-filter: blur(8px);">
-    <a href="#secGrand" class="btn btn-dark" style="padding: 5px 14px; font-size: 0.82rem; border-color:#f59e0b; color:#fbbf24;">
-      <i class="fa-solid fa-crown"></i> 종합 대상
+  <nav style="background: rgba(19, 28, 46, 0.8); border-bottom: 1px solid var(--border-dark); padding: 8px 30px; display: flex; gap: 12px; justify-content: center; position: sticky; top: 68px; z-index: 999; backdrop-filter: blur(8px); flex-wrap: wrap;">
+    <a href="#secGrand" id="navGrand" class="btn btn-dark" style="padding: 5px 14px; font-size: 0.82rem; border-color:#f59e0b; color:#fbbf24;">
+      <i class="fa-solid fa-crown"></i> <span id="navGrandText">대상</span>
     </a>
-    <a href="#secMajor" class="btn btn-dark" style="padding: 5px 14px; font-size: 0.82rem; border-color:#3b82f6; color:#93c5fd;">
-      <i class="fa-solid fa-medal"></i> 최우수상 & 우수상
+    <a href="#secMajor" id="navMajor" class="btn btn-dark" style="padding: 5px 14px; font-size: 0.82rem; border-color:#3b82f6; color:#93c5fd;">
+      <i class="fa-solid fa-medal"></i> <span id="navMajorText">최우수상 & 우수상</span>
     </a>
-    <a href="#secHarmony" class="btn btn-dark" style="padding: 5px 14px; font-size: 0.82rem; border-color:#10b981; color:#a7f3d0;">
-      <i class="fa-solid fa-users"></i> 출석 100% 화합상
+    <a href="#secHarmony" id="navHarmony" class="btn btn-dark" style="padding: 5px 14px; font-size: 0.82rem; border-color:#10b981; color:#a7f3d0;">
+      <i class="fa-solid fa-users"></i> <span id="navHarmonyText">화합상</span>
+    </a>
+    <a href="#secParticipation" id="navParticipation" class="btn btn-dark" style="padding: 5px 14px; font-size: 0.82rem; border-color:#0ea5e9; color:#38bdf8;">
+      <i class="fa-solid fa-gift"></i> <span id="navParticipationText">참가상</span>
     </a>
     <a href="#secRanking" class="btn btn-dark" style="padding: 5px 14px; font-size: 0.82rem; border-color:#cbd5e1; color:#ffffff;">
       <i class="fa-solid fa-list-ol"></i> 전체 종합 순위표
@@ -115,14 +118,14 @@
   <!-- 메인 시상 콘텐츠 (화면 전체 꽉 찬 대형 레이아웃) -->
   <main class="container" style="max-width: 98%; width: 98%; margin: 0 auto; padding: 28px 24px 100px;">
 
-    <!-- 1. 영예의 대상 (1팀 - 상금 30만원) -->
+    <!-- 1. 영예의 대상 (1팀) -->
     <section id="secGrand" style="margin-bottom: 40px; scroll-margin-top: 130px;">
       <div id="grandPrizeSection">
         <!-- 자바스크립트로 대상 카드 동적 렌더링 -->
       </div>
     </section>
 
-    <!-- 2. 최우수상 (2팀) & 우수상 (2팀) 그리드 (4분할 꽉 찬 레이아웃) -->
+    <!-- 2. 최우수상 & 우수상 그리드 -->
     <section id="secMajor" style="margin-bottom: 44px; scroll-margin-top: 130px;">
       <div style="margin-bottom: 16px;">
         <h3 id="majorHeaderTitle" style="font-size: 1.6rem; font-weight: 800; color: white;">
@@ -137,24 +140,45 @@
       </div>
     </section>
 
-    <!-- 3. 화합상 (출석률 100% 모임 다수 - 각 10만원) -->
+    <!-- 3. 화합상 -->
     <section id="secHarmony" class="card" style="background: rgba(19, 28, 46, 0.9); border: 2px solid rgba(16, 185, 129, 0.5); border-radius: 20px; padding: 28px; margin-bottom: 44px; scroll-margin-top: 130px;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px; flex-wrap:wrap; gap:12px;">
-        <div>
-          <span class="badge badge-green" style="font-size:0.95rem; padding:5px 14px;">
-            <i class="fa-solid fa-users"></i> 전원 출석 특별상
-          </span>
-          <h3 id="harmonyHeaderTitle" style="font-size: 1.5rem; font-weight: 800; color: white; margin-top: 6px;">
-            화합상 (출석률 100% 달성 모임 전원 수상 · 각 100,000원)
+        <div style="display:flex; align-items:center; gap:12px;">
+          <h3 id="harmonyHeaderTitle" style="font-size: 1.6rem; font-weight: 800; color: white; margin: 0;">
+            화합상
           </h3>
+          <span id="harmonyPrizeBadge" class="badge badge-gold" style="font-size:0.95rem; font-weight:800; padding:6px 14px;">
+            각 현금 7만원
+          </span>
         </div>
-        <div style="font-size: 0.88rem; color: #94a3b8;">
-          상위 수상팀을 제외하고 전원 출석(100%)을 이뤄낸 모든 성실 출품팀
+        <div id="harmonyHeaderDesc" style="font-size: 0.88rem; color: #94a3b8;">
+          상위 수상 5팀 제외 사진 1 출석률 100%를 달성하여 성실히 출품한 모임
         </div>
       </div>
 
       <div id="harmonyPrizesList" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px;">
         <!-- 화합상 단체들 동적 렌더링 -->
+      </div>
+    </section>
+
+    <!-- 4. 참가상 -->
+    <section id="secParticipation" class="card" style="background: rgba(19, 28, 46, 0.9); border: 2px solid rgba(14, 165, 233, 0.4); border-radius: 20px; padding: 28px; margin-bottom: 44px; scroll-margin-top: 130px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px; flex-wrap:wrap; gap:12px;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <h3 id="participationHeaderTitle" style="font-size: 1.6rem; font-weight: 800; color: white; margin: 0;">
+            참가상
+          </h3>
+          <span id="participationPrizeBadge" class="badge badge-blue" style="font-size:0.95rem; font-weight:800; padding:6px 14px;">
+            각 현금 5만원
+          </span>
+        </div>
+        <div id="participationHeaderDesc" style="font-size: 0.88rem; color: #94a3b8;">
+          상위 수상작 외에 콘테스트에 열정적으로 함께해 주신 모든 참가팀
+        </div>
+      </div>
+
+      <div id="participationPrizesList" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px;">
+        <!-- 참가상 단체들 동적 렌더링 -->
       </div>
     </section>
 

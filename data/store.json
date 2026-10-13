@@ -11,12 +11,31 @@
     "adminId": "admin",
     "adminPw": "sangmo25",
     "prizes": {
-      "grand": "상금 현금 300,000원",
-      "topGroup": "현금 200,000원",
-      "topDistrict": "현금 200,000원",
-      "secondGroup": "현금 150,000원",
-      "secondDistrict": "현금 150,000원",
-      "harmony": "각 100,000원"
+      "grand": "현금 20만원",
+      "topGroup": "각 현금 15만원",
+      "topDistrict": "각 현금 15만원",
+      "secondGroup": "각 현금 10만원",
+      "secondDistrict": "각 현금 10만원",
+      "harmony": "각 현금 7만원",
+      "participation": "각 현금 5만원"
+    },
+    "awardsConfig": {
+      "grandTitle": "대상",
+      "grandPrize": "현금 20만원",
+      "grandDesc": "종합 합산 점수 전체 1위",
+      "topTitle": "최우수상",
+      "topCount": 2,
+      "topPrize": "각 현금 15만원",
+      "secondTitle": "우수상",
+      "secondCount": 2,
+      "secondPrize": "각 현금 10만원",
+      "harmonyTitle": "화합상",
+      "harmonyPrize": "각 현금 7만원",
+      "harmonyDesc": "상위 수상 5팀 제외 사진 1 출석률 100%를 달성하여 성실히 출품한 모임",
+      "useParticipation": true,
+      "participationTitle": "참가상",
+      "participationPrize": "각 현금 5만원",
+      "participationDesc": "그 외 모든 참가팀"
     }
   },
   "votingState": {
