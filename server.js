@@ -162,8 +162,8 @@ app.get('/api/qr', async (req, res) => {
 
   try {
     const qrDataUrl = await QRCode.toDataURL(qrTargetUrl, {
-      margin: 2,
-      width: 800,
+      margin: 1,
+      width: 900,
       color: {
         dark: '#0f172a',
         light: '#ffffff'
