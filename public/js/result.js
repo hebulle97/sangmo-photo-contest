@@ -54,22 +54,37 @@ async function loadAwards() {
 function renderAwards(data) {
   const {
     grandPrize,
+    topPrizes = [],
+    secondPrizes = [],
     topGroupPrize,
     topDistrictPrize,
     secondGroupPrize,
     secondDistrictPrize,
-    harmonyPrizes,
-    ranking,
+    harmonyPrizes = [],
+    ranking = [],
+    awardsConfig = {},
     prizes = {}
   } = data;
 
+  const cfg = {
+    grandTitle: awardsConfig.grandTitle || '종합 대상',
+    grandPrize: awardsConfig.grandPrize || prizes.grand || '상금 현금 300,000원',
+    topTitle: awardsConfig.topTitle || '최우수상',
+    topCount: awardsConfig.topCount || 2,
+    topPrize: awardsConfig.topPrize || prizes.topGroup || '현금 200,000원',
+    secondTitle: awardsConfig.secondTitle || '우수상',
+    secondCount: awardsConfig.secondCount || 2,
+    secondPrize: awardsConfig.secondPrize || prizes.secondGroup || '현금 150,000원',
+    harmonyTitle: awardsConfig.harmonyTitle || '화합상',
+    harmonyPrize: awardsConfig.harmonyPrize || prizes.harmony || '각 100,000원'
+  };
+
   // 1. 대상 렌더링 (대형 스크린 시원하게 꽉 채우기)
   if (grandPrize) {
-    const grandPrizeText = prizes.grand || '종합 대상 (상금 현금 300,000원)';
     grandPrizeSection.innerHTML = `
       <div class="award-card award-grand" style="padding: 32px;">
         <div class="award-badge-ribbon" style="background:#f59e0b; color:#0f172a; font-size:1.15rem; padding: 8px 24px;">
-          <i class="fa-solid fa-crown"></i> ${grandPrizeText}
+          <i class="fa-solid fa-crown"></i> ${cfg.grandTitle} (${cfg.grandPrize})
         </div>
         <div style="display:grid; grid-template-columns: minmax(480px, 46%) 1fr; gap: 36px; align-items: center;">
           <div style="position:relative; border-radius:16px; overflow:hidden; border:3px solid #f59e0b; height:380px; box-shadow: 0 12px 30px rgba(0,0,0,0.5);">
@@ -116,15 +131,43 @@ function renderAwards(data) {
     `;
   }
 
-  // 2. 최우수상 & 우수상 렌더링 (부문 문구 완전 삭제, 깔끔한 명칭 적용)
-  const majorList = [
-    { title: '최우수상', prize: prizes.topGroup || '현금 200,000원', data: topGroupPrize, color: '#3b82f6' },
-    { title: '최우수상', prize: prizes.topDistrict || '현금 200,000원', data: topDistrictPrize, color: '#3b82f6' },
-    { title: '우수상', prize: prizes.secondGroup || '현금 150,000원', data: secondGroupPrize, color: '#a855f7' },
-    { title: '우수상', prize: prizes.secondDistrict || '현금 150,000원', data: secondDistrictPrize, color: '#a855f7' }
-  ];
+  // 2. 최우수상 & 우수상 헤더 및 카드 렌더링
+  const actualTopList = (topPrizes && topPrizes.length > 0)
+    ? topPrizes
+    : [topGroupPrize, topDistrictPrize].filter(Boolean);
 
-  majorPrizesSection.innerHTML = majorList.map(item => {
+  const actualSecondList = (secondPrizes && secondPrizes.length > 0)
+    ? secondPrizes
+    : [secondGroupPrize, secondDistrictPrize].filter(Boolean);
+
+  const elMajorTitle = document.getElementById('majorHeaderTitle');
+  const elMajorSubtitle = document.getElementById('majorHeaderSubtitle');
+  if (elMajorTitle) {
+    elMajorTitle.innerHTML = `<i class="fa-solid fa-medal text-gold"></i> ${cfg.topTitle} & ${cfg.secondTitle}`;
+  }
+  if (elMajorSubtitle) {
+    elMajorSubtitle.textContent = `상모성당 설립 25주년을 빛낸 영예의 ${cfg.topTitle} ${actualTopList.length}팀 및 ${cfg.secondTitle} ${actualSecondList.length}팀`;
+  }
+
+  const majorCards = [];
+  actualTopList.forEach(g => {
+    majorCards.push({
+      title: cfg.topTitle,
+      prize: cfg.topPrize,
+      data: g,
+      color: '#3b82f6'
+    });
+  });
+  actualSecondList.forEach(g => {
+    majorCards.push({
+      title: cfg.secondTitle,
+      prize: cfg.secondPrize,
+      data: g,
+      color: '#a855f7'
+    });
+  });
+
+  majorPrizesSection.innerHTML = majorCards.map(item => {
     const g = item.data;
     if (!g) return '';
     return `
@@ -159,8 +202,12 @@ function renderAwards(data) {
     `;
   }).join('');
 
-  // 3. 화합상 렌더링
-  const harmonyPrizeText = prizes.harmony || '각 100,000원';
+  // 3. 화합상 렌더링 및 헤더 문구 동적 연동
+  const elHarmonyHeader = document.getElementById('harmonyHeaderTitle');
+  if (elHarmonyHeader) {
+    elHarmonyHeader.textContent = `${cfg.harmonyTitle} (출석률 100% 달성 모임 전원 수상 · ${cfg.harmonyPrize})`;
+  }
+
   if (harmonyPrizes && harmonyPrizes.length > 0) {
     harmonyPrizesList.innerHTML = harmonyPrizes.map(g => `
       <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.4); padding: 16px; border-radius: 12px; display:flex; justify-content:space-between; align-items:center;">
@@ -170,7 +217,7 @@ function renderAwards(data) {
           <div style="font-size: 0.85rem; color: #a7f3d0; margin-top: 2px;">출석률 100% (${g.attendedCount}/${g.registeredCount}명 전원 참석)</div>
         </div>
         <div style="text-align:right;">
-          <span class="badge badge-gold" style="font-size:0.85rem; font-weight:800;">${harmonyPrizeText}</span>
+          <span class="badge badge-gold" style="font-size:0.85rem; font-weight:800;">${cfg.harmonyPrize}</span>
         </div>
       </div>
     `).join('');

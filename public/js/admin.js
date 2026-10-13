@@ -187,21 +187,30 @@ function updateUI() {
   renderFinalistsSlots();
 
   // 순위별 상금 및 상품 설정값 입력창 동기화 (포커스 중이 아닐 때만)
+  // 시상 설정 UI 로드
+  const awardsCfg = currentSettings.awardsConfig || {};
   const prizes = currentSettings.prizes || {};
-  const setPrizeVal = (id, defVal) => {
+
+  const setVal = (id, val) => {
     const el = document.getElementById(id);
     if (el && !el.matches(':focus')) {
-      el.value = (prizes[id.replace('prize', '').charAt(0).toLowerCase() + id.replace('prize', '').slice(1)] !== undefined)
-        ? prizes[id.replace('prize', '').charAt(0).toLowerCase() + id.replace('prize', '').slice(1)]
-        : defVal;
+      el.value = val !== undefined ? val : '';
     }
   };
-  setPrizeVal('prizeGrand', '상금 현금 300,000원');
-  setPrizeVal('prizeTopGroup', '현금 200,000원');
-  setPrizeVal('prizeTopDistrict', '현금 200,000원');
-  setPrizeVal('prizeSecondGroup', '현금 150,000원');
-  setPrizeVal('prizeSecondDistrict', '현금 150,000원');
-  setPrizeVal('prizeHarmony', '각 100,000원');
+
+  setVal('awardGrandTitle', awardsCfg.grandTitle || '종합 대상');
+  setVal('prizeGrand', awardsCfg.grandPrize || prizes.grand || '상금 현금 300,000원');
+
+  setVal('awardTopTitle', awardsCfg.topTitle || '최우수상');
+  setVal('awardTopCount', awardsCfg.topCount !== undefined ? awardsCfg.topCount : 2);
+  setVal('prizeTop', awardsCfg.topPrize || prizes.topGroup || '현금 200,000원');
+
+  setVal('awardSecondTitle', awardsCfg.secondTitle || '우수상');
+  setVal('awardSecondCount', awardsCfg.secondCount !== undefined ? awardsCfg.secondCount : 2);
+  setVal('prizeSecond', awardsCfg.secondPrize || prizes.secondGroup || '현금 150,000원');
+
+  setVal('awardHarmonyTitle', awardsCfg.harmonyTitle || '화합상');
+  setVal('prizeHarmony', awardsCfg.harmonyPrize || prizes.harmony || '각 100,000원');
 }
 
 // 본선 후보 5개 슬롯 렌더링
@@ -703,24 +712,40 @@ btnSaveFinalists.addEventListener('click', async () => {
 const btnSavePrizes = document.getElementById('btnSavePrizes');
 if (btnSavePrizes) {
   btnSavePrizes.addEventListener('click', async () => {
+    const awardsConfig = {
+      grandTitle: (document.getElementById('awardGrandTitle')?.value || '').trim() || '종합 대상',
+      grandPrize: (document.getElementById('prizeGrand')?.value || '').trim() || '상금 현금 300,000원',
+
+      topTitle: (document.getElementById('awardTopTitle')?.value || '').trim() || '최우수상',
+      topCount: Math.max(1, parseInt(document.getElementById('awardTopCount')?.value) || 2),
+      topPrize: (document.getElementById('prizeTop')?.value || '').trim() || '현금 200,000원',
+
+      secondTitle: (document.getElementById('awardSecondTitle')?.value || '').trim() || '우수상',
+      secondCount: Math.max(1, parseInt(document.getElementById('awardSecondCount')?.value) || 2),
+      secondPrize: (document.getElementById('prizeSecond')?.value || '').trim() || '현금 150,000원',
+
+      harmonyTitle: (document.getElementById('awardHarmonyTitle')?.value || '').trim() || '화합상',
+      harmonyPrize: (document.getElementById('prizeHarmony')?.value || '').trim() || '각 100,000원'
+    };
+
     const prizes = {
-      grand: (document.getElementById('prizeGrand').value || '').trim() || '상금 현금 300,000원',
-      topGroup: (document.getElementById('prizeTopGroup').value || '').trim() || '현금 200,000원',
-      topDistrict: (document.getElementById('prizeTopDistrict').value || '').trim() || '현금 200,000원',
-      secondGroup: (document.getElementById('prizeSecondGroup').value || '').trim() || '현금 150,000원',
-      secondDistrict: (document.getElementById('prizeSecondDistrict').value || '').trim() || '현금 150,000원',
-      harmony: (document.getElementById('prizeHarmony').value || '').trim() || '각 100,000원'
+      grand: awardsConfig.grandPrize,
+      topGroup: awardsConfig.topPrize,
+      topDistrict: awardsConfig.topPrize,
+      secondGroup: awardsConfig.secondPrize,
+      secondDistrict: awardsConfig.secondPrize,
+      harmony: awardsConfig.harmonyPrize
     };
 
     try {
       const res = await fetch('/api/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prizes })
+        body: JSON.stringify({ awardsConfig, prizes })
       });
       const result = await res.json();
       if (result.success) {
-        showToast('각 순위별 상금 및 상품 설정이 저장되었습니다!\n[최종 결과 발표] 화면에 즉시 반영됩니다.', 'success');
+        showToast('순위별 시상 명칭, 팀 수, 상금/상품 설정이 저장되었습니다!\n[최종 결과 발표] 화면에 실시간 반영됩니다.', 'success');
         fetchState();
       } else {
         showToast('저장 실패: ' + (result.error || '오류 발생'), 'error');

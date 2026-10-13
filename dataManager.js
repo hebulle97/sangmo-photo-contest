@@ -520,7 +520,7 @@ class DataManager {
     return this.data.votingState;
   }
 
-  // 최종 결과 및 시상 집계 계산 (기안서 5번 시상 내역 및 동률 처리 원칙 반영)
+  // 최종 결과 및 시상 집계 계산 (커스텀 시상 명칭, 팀 수, 상금 동적 지원)
   calculateAwards() {
     // 동률 처리 원칙:
     // 최종 합산 점수가 동일한 경우, 실제 참가 인원수가 더 많은 팀을 우선 선정
@@ -528,68 +528,110 @@ class DataManager {
       if (b.finalTotalScore !== a.finalTotalScore) {
         return b.finalTotalScore - a.finalTotalScore;
       }
-      // 동점 시 참가 인원수 우선
       if (b.attendedCount !== a.attendedCount) {
         return b.attendedCount - a.attendedCount;
       }
-      // 그 다음 등록 인원수 우선
       return b.registeredCount - a.registeredCount;
     });
 
-    // 시상 내역 분류
-    // 1. 대상 (1팀): 종합 합산 점수 전체 1위 (현금 300,000원)
-    const grandPrize = allGroups.length > 0 ? allGroups[0] : null;
+    // 관리자 시상 설정 로드
+    const rawConfig = this.data.settings.awardsConfig || {};
+    const rawPrizes = this.data.settings.prizes || {};
+
+    const awardsConfig = {
+      grandTitle: rawConfig.grandTitle || "종합 대상",
+      grandPrize: rawConfig.grandPrize || rawPrizes.grand || "상금 현금 300,000원",
+      
+      topTitle: rawConfig.topTitle || "최우수상",
+      topCount: parseInt(rawConfig.topCount) >= 1 ? parseInt(rawConfig.topCount) : 2,
+      topPrize: rawConfig.topPrize || rawPrizes.topGroup || "현금 200,000원",
+      
+      secondTitle: rawConfig.secondTitle || "우수상",
+      secondCount: parseInt(rawConfig.secondCount) >= 1 ? parseInt(rawConfig.secondCount) : 2,
+      secondPrize: rawConfig.secondPrize || rawPrizes.secondGroup || "현금 150,000원",
+      
+      harmonyTitle: rawConfig.harmonyTitle || "화합상",
+      harmonyPrize: rawConfig.harmonyPrize || rawPrizes.harmony || "각 100,000원"
+    };
+
     const awardedIds = new Set();
+
+    // 1. 대상 (1팀): 종합 1위
+    const grandPrize = allGroups.length > 0 ? allGroups[0] : null;
     if (grandPrize) awardedIds.add(grandPrize.id);
 
-    // 부문 분류:
-    // A부문: 위원회 / 단체 / 레지오 (사목평의회, 평신도사도직협의회, 꾸리아(레지오마리애))
-    // B부문: 구역 / 반
+    // 2. 최우수상: topCount팀 선정
+    const topCount = awardsConfig.topCount;
+    const topPrizes = [];
     const isGroupCategory = (cat) => cat !== '구역·반';
 
-    const groupDivision = allGroups.filter(g => isGroupCategory(g.category) && !awardedIds.has(g.id));
-    const districtDivision = allGroups.filter(g => !isGroupCategory(g.category) && !awardedIds.has(g.id));
+    if (topCount === 2) {
+      const gGroup = allGroups.find(g => isGroupCategory(g.category) && !awardedIds.has(g.id));
+      if (gGroup) { topPrizes.push(gGroup); awardedIds.add(gGroup.id); }
+      const gDist = allGroups.find(g => !isGroupCategory(g.category) && !awardedIds.has(g.id));
+      if (gDist) { topPrizes.push(gDist); awardedIds.add(gDist.id); }
+      // 한 부문이 비어있으면 다음 상위권으로 보충
+      if (topPrizes.length < 2) {
+        const nextGroup = allGroups.find(g => !awardedIds.has(g.id));
+        if (nextGroup) { topPrizes.push(nextGroup); awardedIds.add(nextGroup.id); }
+      }
+    } else {
+      const available = allGroups.filter(g => !awardedIds.has(g.id));
+      for (let i = 0; i < topCount && i < available.length; i++) {
+        topPrizes.push(available[i]);
+        awardedIds.add(available[i].id);
+      }
+    }
 
-    // 2. 최우수상 (2팀): 위원회/단체 부문 1위, 구역/반 부문 1위 (각 200,000원)
-    const topGroupPrize = groupDivision.length > 0 ? groupDivision[0] : null;
-    if (topGroupPrize) awardedIds.add(topGroupPrize.id);
+    // 3. 우수상: secondCount팀 선정
+    const secondCount = awardsConfig.secondCount;
+    const secondPrizes = [];
 
-    const topDistrictPrize = districtDivision.length > 0 ? districtDivision[0] : null;
-    if (topDistrictPrize) awardedIds.add(topDistrictPrize.id);
-
-    // 3. 우수상 (2팀): 위원회/단체 부문 2위, 구역/반 부문 2위 (각 150,000원)
-    const remainingGroup = allGroups.filter(g => isGroupCategory(g.category) && !awardedIds.has(g.id));
-    const remainingDistrict = allGroups.filter(g => !isGroupCategory(g.category) && !awardedIds.has(g.id));
-
-    const secondGroupPrize = remainingGroup.length > 0 ? remainingGroup[0] : null;
-    if (secondGroupPrize) awardedIds.add(secondGroupPrize.id);
-
-    const secondDistrictPrize = remainingDistrict.length > 0 ? remainingDistrict[0] : null;
-    if (secondDistrictPrize) awardedIds.add(secondDistrictPrize.id);
+    if (secondCount === 2) {
+      const gGroup = allGroups.find(g => isGroupCategory(g.category) && !awardedIds.has(g.id));
+      if (gGroup) { secondPrizes.push(gGroup); awardedIds.add(gGroup.id); }
+      const gDist = allGroups.find(g => !isGroupCategory(g.category) && !awardedIds.has(g.id));
+      if (gDist) { secondPrizes.push(gDist); awardedIds.add(gDist.id); }
+      // 한 부문이 비어있으면 다음 상위권으로 보충
+      while (secondPrizes.length < 2) {
+        const nextGroup = allGroups.find(g => !awardedIds.has(g.id));
+        if (!nextGroup) break;
+        secondPrizes.push(nextGroup);
+        awardedIds.add(nextGroup.id);
+      }
+    } else {
+      const available = allGroups.filter(g => !awardedIds.has(g.id));
+      for (let i = 0; i < secondCount && i < available.length; i++) {
+        secondPrizes.push(available[i]);
+        awardedIds.add(available[i].id);
+      }
+    }
 
     // 4. 화합상: 출석률 100%를 달성한 단체 중 상위 수상작을 제외한 전원
     const harmonyPrizes = allGroups.filter(g => (g.attendanceRate || 0) >= 100 && !awardedIds.has(g.id));
 
-    // 관리자가 설정한 순위별 상금/상품 (미설정 시 기본값)
-    const defaultPrizes = {
-      grand: "상금 현금 300,000원",
-      topGroup: "현금 200,000원",
-      topDistrict: "현금 200,000원",
-      secondGroup: "현금 150,000원",
-      secondDistrict: "현금 150,000원",
-      harmony: "각 100,000원"
+    // 하위 호환용 prizes 객체
+    const prizes = {
+      grand: awardsConfig.grandPrize,
+      topGroup: awardsConfig.topPrize,
+      topDistrict: awardsConfig.topPrize,
+      secondGroup: awardsConfig.secondPrize,
+      secondDistrict: awardsConfig.secondPrize,
+      harmony: awardsConfig.harmonyPrize
     };
-    const prizes = { ...defaultPrizes, ...(this.data.settings.prizes || {}) };
 
     return {
-      grandPrize,         // 대상
-      topGroupPrize,      // 최우수상 - 위원회/단체/레지오
-      topDistrictPrize,   // 최우수상 - 구역/반
-      secondGroupPrize,   // 우수상 - 위원회/단체/레지오
-      secondDistrictPrize,// 우수상 - 구역/반
-      harmonyPrizes,      // 화합상
-      ranking: allGroups, // 전체 종합 순위표
-      prizes              // 순위별 상금 및 상품 설정값
+      grandPrize,
+      topPrizes,
+      secondPrizes,
+      topGroupPrize: topPrizes[0] || null,
+      topDistrictPrize: topPrizes[1] || null,
+      secondGroupPrize: secondPrizes[0] || null,
+      secondDistrictPrize: secondPrizes[1] || null,
+      harmonyPrizes,
+      ranking: allGroups,
+      awardsConfig,
+      prizes
     };
   }
 
