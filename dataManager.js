@@ -555,6 +555,9 @@ class DataManager {
     const secondDistrictPrize = remainingDistrict.length > 0 ? remainingDistrict[0] : null;
     if (secondDistrictPrize) awardedIds.add(secondDistrictPrize.id);
 
+    // 4. 화합상: 출석률 100%를 달성한 단체 중 상위 수상작을 제외한 전원
+    const harmonyPrizes = allGroups.filter(g => (g.attendanceRate || 0) >= 100 && !awardedIds.has(g.id));
+
     // 관리자가 설정한 순위별 상금/상품 (미설정 시 기본값)
     const defaultPrizes = {
       grand: "상금 현금 300,000원",

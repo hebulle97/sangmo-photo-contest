@@ -152,19 +152,19 @@ function renderBlindBars(isEnded) {
       const pct = Math.round((votes / maxVotes) * 100);
 
       return `
-        <div class="blind-bar-card">
+        <div class="blind-bar-card" style="padding: 7px 14px;">
           <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div style="display:flex; align-items:center; gap:10px;">
-              <span class="badge badge-gold" style="font-size:0.95rem; padding:4px 12px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span class="badge badge-gold" style="font-size:0.88rem; padding:3px 10px;">
                 <i class="fa-solid fa-shield-halved"></i> ${blindLabels[idx] || `후보 ${idx+1}`}
               </span>
-              <span style="color:#94a3b8; font-size:0.85rem;">(5분 마감 시 기호 공개)</span>
+              <span style="color:#94a3b8; font-size:0.8rem;">(5분 마감 시 공개)</span>
             </div>
-            <div style="font-size:1.4rem; font-weight:900; color:var(--accent-gold-light);">
-              ${votes} <span style="font-size:0.85rem; color:#94a3b8;">표</span>
+            <div style="font-size:1.25rem; font-weight:900; color:var(--accent-gold-light);">
+              ${votes} <span style="font-size:0.8rem; color:#94a3b8;">표</span>
             </div>
           </div>
-          <div class="bar-track" style="height:16px; margin-top:6px;">
+          <div class="bar-track" style="height:12px; margin-top:5px;">
             <div class="bar-fill" style="width: ${votes > 0 ? Math.max(8, pct) : 0}%;"></div>
           </div>
         </div>
@@ -188,27 +188,27 @@ function renderBlindBars(isEnded) {
       const rankNum = idx + 1;
 
       return `
-        <div class="blind-bar-card" style="border: 2px solid ${rankNum === 1 ? '#f59e0b' : '#334155'}; background: ${rankNum === 1 ? 'rgba(245, 158, 11, 0.1)' : 'var(--bg-dark-card)'};">
+        <div class="blind-bar-card" style="padding: 6px 12px; border: 2px solid ${rankNum === 1 ? '#f59e0b' : '#334155'}; background: ${rankNum === 1 ? 'rgba(245, 158, 11, 0.1)' : 'var(--bg-dark-card)'};">
           <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div style="display:flex; align-items:center; gap:12px;">
-              <span class="badge ${rankNum === 1 ? 'badge-gold' : 'badge-blue'}" style="font-size:0.95rem; padding:4px 12px; font-weight:900;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span class="badge ${rankNum === 1 ? 'badge-gold' : 'badge-blue'}" style="font-size:0.85rem; padding:3px 10px; font-weight:900;">
                 ${rankNum}위 (기호 ${f.candidateNumber}번)
               </span>
-              <img src="${f.photo2Url}" style="width:42px; height:32px; border-radius:4px; object-fit:cover; border:1px solid #475569;">
+              <img src="${f.photo2Url}" style="width:36px; height:28px; border-radius:4px; object-fit:cover; border:1px solid #475569;">
               <div>
-                <div style="font-size:0.95rem; font-weight:800; color:white;">
-                  "${f.photo2Title}" <span style="font-size:0.8rem; color:#94a3b8; font-weight:normal;">- ${f.name}</span>
+                <div style="font-size:0.88rem; font-weight:800; color:white;">
+                  "${f.photo2Title}" <span style="font-size:0.75rem; color:#94a3b8; font-weight:normal;">- ${f.name}</span>
                 </div>
               </div>
             </div>
             <div style="text-align:right;">
-              <div style="font-size:1.3rem; font-weight:900; color:var(--accent-gold-light);">
-                ${votes} <span style="font-size:0.85rem; color:#94a3b8;">표</span>
-                <span class="badge badge-gold" style="font-size:0.85rem; margin-left:8px;">${score}점</span>
+              <div style="font-size:1.15rem; font-weight:900; color:var(--accent-gold-light);">
+                ${votes} <span style="font-size:0.78rem; color:#94a3b8;">표</span>
+                <span class="badge badge-gold" style="font-size:0.78rem; margin-left:6px;">${score}점</span>
               </div>
             </div>
           </div>
-          <div class="bar-track" style="height:14px; margin-top:6px;">
+          <div class="bar-track" style="height:10px; margin-top:4px;">
             <div class="bar-fill" style="width: ${votes > 0 ? Math.max(8, pct) : 0}%; background: ${rankNum === 1 ? 'linear-gradient(90deg, #f59e0b, #fbbf24)' : 'linear-gradient(90deg, #3b82f6, #60a5fa)'};"></div>
           </div>
         </div>
