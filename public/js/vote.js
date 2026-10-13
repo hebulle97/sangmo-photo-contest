@@ -8,7 +8,7 @@ if (!clientKey) {
   localStorage.setItem('sangmo_contest_client_key', clientKey);
 }
 
-let hasVotedLocally = localStorage.getItem('sangmo_contest_voted') === 'true';
+let hasVotedLocally = false;
 let finalists = [];
 let votingState = {};
 let selectedCandidates = new Set(); // 1인 2표제 선택 후보 ID
@@ -60,18 +60,29 @@ function formatTime(seconds) {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
-// 1. 상태 가져오기
+// 1. 상태 가져오기 (캐시 방지 및 서버 현재 회차 기준 투표 여부 동기화)
 async function initVotePage() {
   try {
-    const res = await fetch('/api/state');
+    const res = await fetch(`/api/state?t=${Date.now()}`, { cache: 'no-store' });
     const data = await res.json();
     finalists = data.finalists || [];
     votingState = data.votingState || {};
 
-    // 이미 투표했는지 체크
-    if (votingState.voters && (votingState.voters[clientKey] || (data.currentIp && Object.values(votingState.voters).some(v => v.ip === data.currentIp)))) {
+    // 서버의 현재 투표 회차(votingState.voters)에 기록이 있는지 확인
+    const voters = (votingState && votingState.voters) ? votingState.voters : {};
+    const votedInCurrentRound = Boolean(
+      voters[clientKey] ||
+      (data.currentIp && Object.values(voters).some(v => v.ip === data.currentIp))
+    );
+
+    if (votedInCurrentRound) {
       hasVotedLocally = true;
       localStorage.setItem('sangmo_contest_voted', 'true');
+    } else {
+      // 관리자가 투표를 재시작하거나 초기화하여 서버 명단이 비워진 경우 과거 투표 제한을 즉시 해제
+      hasVotedLocally = false;
+      localStorage.removeItem('sangmo_contest_voted');
+      if (completedModal) completedModal.classList.remove('active');
     }
 
     renderPage();
@@ -298,6 +309,20 @@ socket.on('voting_reset', (data) => {
   selectedCandidates.clear();
   completedModal.classList.remove('active');
   renderPage();
+});
+
+socket.on('state_reset', () => {
+  hasVotedLocally = false;
+  localStorage.removeItem('sangmo_contest_voted');
+  selectedCandidates.clear();
+  if (completedModal) completedModal.classList.remove('active');
+  initVotePage();
+});
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    initVotePage();
+  }
 });
 
 // 초기화

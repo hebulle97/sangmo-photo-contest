@@ -144,14 +144,17 @@ function updateUI() {
   const pubUrl = currentSettings.publicUrl || currentSettings.tunnelUrl || window.location.origin;
   publicUrlInput.value = `${pubUrl.replace(/\/$/, '')}/vote`;
 
-  // 인라인 QR 코드 갱신 (팝업 없이 상시 노출)
+  // 인라인 QR 코드 갱신 (투표 재시작 시마다 새 회차 QR 코드로 즉시 갱신)
   if (inlineQrImage) {
-    fetch(`/api/qr?url=${encodeURIComponent(pubUrl)}`)
+    fetch(`/api/qr?url=${encodeURIComponent(pubUrl)}&t=${Date.now()}`, { cache: 'no-store' })
       .then(r => r.json())
       .then(d => {
         if (d && d.qrDataUrl) inlineQrImage.src = d.qrDataUrl;
       })
       .catch(() => {});
+  }
+  if (qrModal && qrModal.classList.contains('active')) {
+    loadQrCode(currentQrType);
   }
 
   // 투표 상태 배지
@@ -807,7 +810,7 @@ async function loadQrCode(type = currentQrType) {
     } else {
       url = currentSettings.publicUrl || currentSettings.tunnelUrl || window.location.origin;
     }
-    const res = await fetch(`/api/qr?url=${encodeURIComponent(url)}`);
+    const res = await fetch(`/api/qr?url=${encodeURIComponent(url)}&t=${Date.now()}`, { cache: 'no-store' });
     const data = await res.json();
     modalQrImage.src = data.qrDataUrl;
     modalQrUrl.textContent = data.voteUrl;

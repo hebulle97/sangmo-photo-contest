@@ -151,14 +151,17 @@ app.get('/api/state', (req, res) => {
   });
 });
 
-// 2. QR 코드 이미지 생성 API
+// 2. QR 코드 이미지 생성 API (투표 재시작 시마다 새 회차 코드로 QR 새로 생성)
 app.get('/api/qr', async (req, res) => {
   const settings = dataManager.getSettings();
-  const targetUrl = req.query.url || settings.publicUrl || settings.tunnelUrl || `http://${getLocalIpAddress()}:${PORT}/vote`;
-  const voteUrl = targetUrl.endsWith('/vote') ? targetUrl : `${targetUrl.replace(/\/$/, '')}/vote`;
+  const votingState = dataManager.getVotingState();
+  const roundId = (votingState && votingState.roundId) ? votingState.roundId : 'R1';
+  const rawUrl = (req.query.url || settings.publicUrl || settings.tunnelUrl || `http://${getLocalIpAddress()}:${PORT}`).split('?')[0].replace(/\/$/, '');
+  const baseVoteUrl = rawUrl.endsWith('/vote') ? rawUrl : `${rawUrl}/vote`;
+  const qrTargetUrl = `${baseVoteUrl}?r=${encodeURIComponent(roundId)}`;
 
   try {
-    const qrDataUrl = await QRCode.toDataURL(voteUrl, {
+    const qrDataUrl = await QRCode.toDataURL(qrTargetUrl, {
       margin: 2,
       width: 400,
       color: {
@@ -166,7 +169,7 @@ app.get('/api/qr', async (req, res) => {
         light: '#ffffff'
       }
     });
-    res.json({ qrDataUrl, voteUrl });
+    res.json({ qrDataUrl, voteUrl: baseVoteUrl, qrTargetUrl, roundId });
   } catch (err) {
     res.status(500).json({ error: 'QR 코드 생성 실패' });
   }
@@ -266,8 +269,10 @@ app.post('/api/voting/start', (req, res) => {
 
   io.emit('voting_started', {
     status: 'active',
+    roundId: votingState.roundId,
     duration,
     remainingSeconds: duration,
+    totalVoters: 0,
     finalists: dataManager.getFinalists()
   });
 

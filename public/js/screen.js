@@ -47,7 +47,7 @@ function formatTime(seconds) {
 // 1. 초기 상태 로드
 async function initScreen() {
   try {
-    const res = await fetch('/api/state');
+    const res = await fetch(`/api/state?t=${Date.now()}`, { cache: 'no-store' });
     const data = await res.json();
     settings = data.settings;
     finalists = data.finalists || [];
@@ -66,10 +66,10 @@ async function initScreen() {
   }
 }
 
-// QR 코드 로드
+// QR 코드 로드 (투표 회차 변경 시마다 새 QR 코드 생성)
 async function updateQrCode() {
   try {
-    const res = await fetch('/api/qr');
+    const res = await fetch(`/api/qr?t=${Date.now()}`, { cache: 'no-store' });
     const data = await res.json();
     screenQrImage.src = data.qrDataUrl;
     screenQrUrl.textContent = data.voteUrl;
@@ -305,8 +305,11 @@ socket.on('vote_updated', (data) => {
 
 socket.on('voting_started', (data) => {
   votingState.status = 'active';
+  votingState.roundId = data.roundId;
   votingState.remainingSeconds = data.remainingSeconds;
+  votingState.totalVoters = 0;
   finalists = data.finalists || finalists;
+  updateQrCode();
   updateScreenUI();
   // 자동으로 실시간 투표 뷰로 전환
   btnModeVote.click();
@@ -322,6 +325,7 @@ socket.on('voting_ended', (data) => {
 socket.on('voting_reset', (data) => {
   votingState = data.votingState;
   finalists = data.finalists || finalists;
+  updateQrCode();
   updateScreenUI();
   btnModeIntro.click(); // 리셋 시 후보 소개 모드로 전환
 });

@@ -355,18 +355,23 @@ class DataManager {
   }
 
   startVoting(durationSeconds = 300) {
+    const newRoundId = 'R' + Date.now().toString(36).toUpperCase();
     this.data.votingState = {
       status: 'active',
+      roundId: newRoundId,
       remainingSeconds: durationSeconds,
       startTime: Date.now(),
       endTime: Date.now() + durationSeconds * 1000,
       totalVoters: 0,
-      voters: {}
+      voters: {} // 투표 재시작 시 과거 투표했던 모든 IP 및 기기 기록 완전 초기화
     };
 
-    // 득표수 초기화
+    // 득표수 및 사진2 점수 초기화
+    const defaultScore = this.data.settings.defaultPhoto2Score || 20;
     this.data.groups.forEach(g => {
       g.photo2VoteCount = 0;
+      g.photo2Score = defaultScore;
+      g.finalTotalScore = parseFloat((g.photo1Score + defaultScore).toFixed(1));
     });
 
     this.saveData();
@@ -379,7 +384,7 @@ class DataManager {
     }
   }
 
-  // 투표 처리 (1인 2표제 지원 및 접속 IP / 고유키 중복 검증)
+  // 투표 처리 (1인 2표제 지원 및 현재 투표 회차 내 접속 IP / 고유키 중복 검증)
   castVote({ clientKey, ip, candidateIds }) {
     if (this.data.votingState.status !== 'active') {
       return { success: false, message: '현재 투표 진행 시간이 아닙니다.' };
@@ -389,9 +394,13 @@ class DataManager {
       return { success: false, message: '투표가 마감되었습니다.' };
     }
 
-    // 중복 투표 검증 (기기 고유 식별자 기반)
+    // 중복 투표 검증 (현재 진행 중인 투표 회차의 voters 명단 기준)
+    if (!this.data.votingState.voters) {
+      this.data.votingState.voters = {};
+    }
     const voters = this.data.votingState.voters;
-    if (voters[clientKey]) {
+    const alreadyVotedByIp = ip && ip !== 'unknown-ip' && Object.values(voters).some(v => v.ip === ip);
+    if (voters[clientKey] || alreadyVotedByIp) {
       return { success: false, message: '이미 투표에 참여하셨습니다. (1인 1회 제한)' };
     }
 
@@ -477,8 +486,10 @@ class DataManager {
   // 단체 및 사진 정보는 보존하고 오직 투표 내역만 0표/05:00으로 초기화
   resetVotingOnly() {
     const duration = this.data.settings.voteDurationSeconds || 300;
+    const newRoundId = 'R' + Date.now().toString(36).toUpperCase();
     this.data.votingState = {
       status: 'ready',
+      roundId: newRoundId,
       remainingSeconds: duration,
       startTime: null,
       endTime: null,
