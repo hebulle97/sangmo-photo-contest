@@ -77,35 +77,37 @@
       <!-- [1. 좌측 영역] 본선 5개 후보작 대형 시네마틱 쇼케이스 (가로 화면 100% 핏 극대화) -->
       <div style="height: 100%; min-height: 0; background: rgba(19, 28, 46, 0.95); border: 1px solid var(--border-dark); border-radius: 16px; padding: 16px 20px; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; box-shadow: var(--shadow-glow);">
         
-        <!-- 상단: 단체명 및 작품명 정보 헤더 -->
+        <!-- 상단: 단체명 정보 헤더 (1줄 시원하고 큼직한 배치) -->
         <div style="flex-shrink: 0; border-bottom: 1px solid var(--border-dark); padding-bottom: 8px; margin-bottom: 8px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <span id="introCategoryBadge" class="badge badge-blue" style="font-size: 0.9rem; padding: 3px 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span id="introCategoryBadge" class="badge badge-blue" style="font-size: 1rem; padding: 4px 14px; font-weight: 800;">
                 부문
               </span>
-              <strong id="introGroupName" style="font-size: 1.3rem; color: white;">
+              <strong id="introGroupName" style="font-size: 1.55rem; color: white; letter-spacing: -0.01em;">
                 단체명
               </strong>
             </div>
-            <span id="introCounter" style="font-size: 1.05rem; font-weight: 800; color: var(--accent-gold);">
+            <span id="introCounter" style="font-size: 1.15rem; font-weight: 900; color: var(--accent-gold);">
               1 / 5
             </span>
-          </div>
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <span style="font-size: 0.82rem; color: #94a3b8; font-weight: 700;">작품명:</span>
-            <div id="introPhotoTitle" style="font-size: 1.3rem; font-weight: 900; color: var(--accent-gold-light); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-              "활동의 한순간"
-            </div>
           </div>
         </div>
 
         <!-- 중앙: 초대형 사진 액자 (가로 시네마틱 핏) -->
-        <div style="position: relative; flex: 1; min-height: 0; background: #000; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 2px solid #334155; box-shadow: inset 0 0 20px rgba(0,0,0,0.8);">
+        <div style="position: relative; flex: 1; min-height: 0; background: #000; border-radius: 14px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 2px solid #334155; box-shadow: inset 0 0 20px rgba(0,0,0,0.8);">
           <img id="introImage" src="/assets/church_exterior.jpg" onerror="this.src='/assets/church_exterior.jpg'" style="max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; display: block; transition: opacity 0.3s ease;" alt="후보 사진">
           
-          <div style="position: absolute; top: 14px; left: 14px; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); padding: 5px 16px; border-radius: 999px; border: 2px solid var(--accent-gold); z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
-            <span id="introCandidateNumber" style="font-size: 1.25rem; font-weight: 900; color: var(--accent-gold);">기호 1번</span>
+          <!-- 좌상단: 기호 번호 배지 -->
+          <div style="position: absolute; top: 16px; left: 16px; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); padding: 6px 18px; border-radius: 999px; border: 2px solid var(--accent-gold); z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.6);">
+            <span id="introCandidateNumber" style="font-size: 1.3rem; font-weight: 900; color: var(--accent-gold);">기호 1번</span>
+          </div>
+
+          <!-- 하단 중앙: 시네마틱 대형 작품명 타이틀 오버레이 (성당 뒷자리 원거리 가독성 극대화) -->
+          <div style="position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 20; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(10px); padding: 8px 36px; border-radius: 999px; border: 2px solid rgba(245, 158, 11, 0.75); box-shadow: 0 10px 30px rgba(0,0,0,0.85); max-width: 90%; text-align: center;">
+            <div id="introPhotoTitle" style="font-size: 1.85rem; font-weight: 900; color: #fde047; text-shadow: 0 2px 10px rgba(0,0,0,0.95); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.01em;">
+              "활동의 한순간"
+            </div>
           </div>
 
           <!-- 7초 슬라이드 진행 바 -->
