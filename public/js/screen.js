@@ -229,7 +229,7 @@ function showIntroSlide(index) {
   introCandidateNumber.textContent = `기호 ${f.candidateNumber}번`;
   introCategoryBadge.textContent = f.category;
   introGroupName.textContent = f.name;
-  introPhotoTitle.textContent = `"${f.photo2Title}"`;
+  introPhotoTitle.textContent = `작품명 "${f.photo2Title}"`;
   introPhotoDesc.textContent = f.photo2Desc || '상모성당 25주년의 은총이 깃든 활동의 한 순간';
   introCounter.textContent = `${currentSlideIndex + 1} / ${finalists.length}`;
 
