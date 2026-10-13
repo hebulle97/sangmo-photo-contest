@@ -246,26 +246,20 @@ btnNextIntro.addEventListener('click', () => {
   startSlideLoop();
 });
 
-// 모드 전환 버튼
-btnModeIntro.addEventListener('click', () => {
-  viewVote.style.display = 'none';
-  viewIntro.style.display = 'grid';
-  btnModeIntro.className = 'btn btn-gold';
-  btnModeVote.className = 'btn btn-outline';
-  btnModeVote.style.color = 'white';
-  btnModeVote.style.borderColor = 'rgba(255,255,255,0.3)';
-  startSlideLoop();
-});
-
-btnModeVote.addEventListener('click', () => {
-  viewIntro.style.display = 'none';
-  viewVote.style.display = 'grid';
-  btnModeVote.className = 'btn btn-gold';
-  btnModeIntro.className = 'btn btn-outline';
-  btnModeIntro.style.color = 'white';
-  btnModeIntro.style.borderColor = 'rgba(255,255,255,0.3)';
-  stopSlideLoop();
-});
+// 모드 전환 버튼 (3분할 통합 화면 지원)
+if (btnModeIntro && viewIntro) {
+  btnModeIntro.addEventListener('click', () => {
+    if (viewVote) viewVote.style.display = 'none';
+    viewIntro.style.display = 'grid';
+    startSlideLoop();
+  });
+}
+if (btnModeVote && viewVote) {
+  btnModeVote.addEventListener('click', () => {
+    if (viewIntro) viewIntro.style.display = 'none';
+    viewVote.style.display = 'grid';
+  });
+}
 
 // 전체화면 토글
 btnFullscreen.addEventListener('click', () => {
@@ -311,8 +305,7 @@ socket.on('voting_started', (data) => {
   finalists = data.finalists || finalists;
   updateQrCode();
   updateScreenUI();
-  // 자동으로 실시간 투표 뷰로 전환
-  btnModeVote.click();
+  startSlideLoop();
 });
 
 socket.on('voting_ended', (data) => {
@@ -327,7 +320,7 @@ socket.on('voting_reset', (data) => {
   finalists = data.finalists || finalists;
   updateQrCode();
   updateScreenUI();
-  btnModeIntro.click(); // 리셋 시 후보 소개 모드로 전환
+  startSlideLoop();
 });
 
 socket.on('finalists_updated', (newFinalists) => {

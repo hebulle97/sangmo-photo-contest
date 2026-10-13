@@ -49,15 +49,15 @@
     </div>
   </header>
 
-  <!-- 툴바 영역 (모드 전환 탭) -->
+  <!-- 툴바 영역 (상태 배지 및 전체화면) -->
   <div style="padding: 6px 24px 8px 24px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
-    <div style="display: flex; gap: 10px;">
-      <button class="btn btn-gold" id="btnModeIntro" style="padding: 6px 16px; font-size: 0.88rem;">
-        <i class="fa-solid fa-film"></i> 후보작 5편 상영 모드 (15초 순차)
-      </button>
-      <button class="btn btn-outline" id="btnModeVote" style="color:white; border-color:rgba(255,255,255,0.3); padding: 6px 16px; font-size: 0.88rem;">
-        <i class="fa-solid fa-chart-column"></i> 실시간 투표 중계 모드
-      </button>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <span class="badge badge-gold" style="font-size: 0.88rem; padding: 5px 14px;">
+        <i class="fa-solid fa-broadcast-tower"></i> 현장 실시간 통합 중계 (QR 투표 · 작품 감상 · 실시간 집계)
+      </span>
+      <span style="font-size: 0.82rem; color: #94a3b8;">
+        * 본선 후보작이 15초마다 자동으로 전환되며 실시간 득표수가 반영됩니다.
+      </span>
     </div>
 
     <div style="display: flex; gap: 10px; align-items: center;">
@@ -70,144 +70,137 @@
     </div>
   </div>
 
-  <!-- 메인 스크린 콘텐츠 (100vh 꽉 찬 화면, 스크롤 없음) -->
+  <!-- 메인 스크린 콘텐츠 (좌·중·우 3분할 일체형, 100vh 스크롤 제로 핏) -->
   <main class="screen-main-layout">
+    <div style="height: 100%; min-height: 0; display: grid; grid-template-columns: 27% 41% 32%; gap: 16px; overflow: hidden;">
 
-    <!-- [뷰 1] 후보 5편 순차 상영 모드 (사진 전체 온전히 한눈에 표출) -->
-    <section id="viewIntro" style="height: 100%; min-height: 0; display: grid; grid-template-columns: 62% 38%; gap: 16px; overflow: hidden;">
-      
-      <!-- 좌측: 대형 사진 영역 (object-fit: contain으로 위아래 잘림 전혀 없음) -->
-      <div style="height: 100%; min-height: 0; background: #000; border-radius: 14px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-dark);">
-        <img id="introImage" src="/assets/church_exterior.jpg" onerror="this.src='/assets/church_exterior.jpg'" style="max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; display: block; transition: opacity 0.3s ease;" alt="후보 사진">
-        
-        <div style="position: absolute; top: 16px; left: 16px; background: rgba(0,0,0,0.75); backdrop-filter: blur(8px); padding: 6px 18px; border-radius: 999px; border: 2px solid var(--accent-gold); z-index: 10;">
-          <span id="introCandidateNumber" style="font-size: 1.3rem; font-weight: 900; color: var(--accent-gold);">기호 1번</span>
-        </div>
-        
-        <!-- 15초 진행 바 -->
-        <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 5px; background: rgba(255,255,255,0.2); z-index: 10;">
-          <div id="introSlideProgress" style="height: 100%; width: 0%; background: var(--accent-gold); transition: width 0.1s linear;"></div>
-        </div>
-      </div>
-
-      <!-- 우측: 작품 설명 및 단체 정보 패널 (스크롤 없이 버튼까지 완벽 표출) -->
-      <div style="height: 100%; min-height: 0; display: flex; flex-direction: column; justify-content: space-between; padding: 22px 24px; background: rgba(19, 28, 46, 0.95); border-radius: 14px; border: 1px solid var(--border-dark); overflow: hidden;">
-        
-        <div>
-          <div style="margin-bottom: 12px;">
-            <span id="introCategoryBadge" class="badge badge-blue" style="font-size: 0.95rem; padding: 5px 14px;">
-              꾸리아(레지오마리애)
-            </span>
-          </div>
-          <h3 id="introGroupName" style="font-size: 1.8rem; font-weight: 900; color: white; margin-bottom: 16px; line-height: 1.3;">
-            평화의 모후 Pr.
-          </h3>
-
-          <div style="background: rgba(255, 255, 255, 0.05); padding: 18px 20px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 16px;">
-            <div style="font-size: 0.85rem; color: #94a3b8; font-weight: 700; margin-bottom: 4px;">[사진 2] 작품명</div>
-            <div id="introPhotoTitle" style="font-size: 1.45rem; font-weight: 900; color: var(--accent-gold-light); line-height: 1.3;">
-              "성모님의 품 안에서 한마음"
-            </div>
-          </div>
-
-          <div style="font-size: 1rem; color: #cbd5e1; line-height: 1.6; max-height: 120px; overflow-y: auto;" id="introPhotoDesc">
-            야외 회합 후 함께 나눈 따뜻한 은총의 미소
-          </div>
-        </div>
-
-        <!-- 하단 슬라이드 내비게이션 바 -->
-        <div style="display: flex; gap: 10px; align-items: center; justify-content: space-between; border-top: 1px solid var(--border-dark); padding-top: 14px; margin-top: 10px;">
-          <button class="btn btn-dark" id="btnPrevIntro" style="padding: 8px 16px; font-size: 0.9rem;">
-            <i class="fa-solid fa-arrow-left"></i> 이전 작품
-          </button>
-          <span id="introCounter" style="font-size: 1.1rem; font-weight: 800; color: var(--accent-gold);">1 / 5</span>
-          <button class="btn btn-dark" id="btnNextIntro" style="padding: 8px 16px; font-size: 0.9rem;">
-            다음 작품 <i class="fa-solid fa-arrow-right"></i>
-          </button>
-        </div>
-
-      </div>
-
-    </section>
-
-    <!-- [뷰 2] 실시간 투표 중계 & 블라인드 현황 모드 (100vh 스크롤 제로 핏, 좌측 초대형 QR 영역 46% 배치) -->
-    <section id="viewVote" style="display: none; height: 100%; min-height: 0; grid-template-columns: 46% 54%; gap: 20px; overflow: hidden;">
-
-      <!-- 좌측: 빔프로젝터용 초대형 QR 코드 및 접속 안내 (화면 절반 크기) -->
-      <div style="height: 100%; min-height: 0; background: rgba(19, 28, 46, 0.95); border: 2px solid rgba(245, 158, 11, 0.55); border-radius: 16px; padding: 18px 24px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; align-items: center; box-shadow: var(--shadow-glow); overflow: hidden;">
+      <!-- [1. 좌측 영역] 상시 접속용 대형 QR 코드 및 투표 인원수 -->
+      <div style="height: 100%; min-height: 0; background: rgba(19, 28, 46, 0.95); border: 2px solid rgba(245, 158, 11, 0.55); border-radius: 16px; padding: 18px 18px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; align-items: center; box-shadow: var(--shadow-glow); overflow: hidden;">
         <div style="width: 100%;">
-          <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 6px;">
-            <span class="badge badge-gold" style="font-size: 0.95rem; padding: 5px 16px;">
-              스마트폰 모바일 투표
-            </span>
-            <span style="font-size: 0.95rem; color: #cbd5e1; font-weight: 700;">
-              기본 카메라로 스캔 · <strong style="color: #fbbf24;">1인 2표제</strong>
-            </span>
+          <div class="badge badge-gold" style="font-size: 0.85rem; padding: 4px 12px; margin-bottom: 6px;">
+            스마트폰 모바일 투표
           </div>
-          <h3 style="font-size: 1.75rem; font-weight: 900; margin: 0; color: #ffffff; letter-spacing: -0.02em;">
-            스마트폰으로 QR 코드를 스캔하세요!
+          <h3 style="font-size: 1.35rem; font-weight: 900; margin: 0 0 4px 0; color: #ffffff; letter-spacing: -0.02em;">
+            QR 코드를 스캔하세요!
           </h3>
+          <p style="font-size: 0.82rem; color: #94a3b8; margin: 0;">
+            기본 카메라로 비추기 · <strong style="color: #fbbf24;">1인 2표제</strong>
+          </p>
         </div>
 
-        <!-- 초대형 QR 코드 이미지 (빔프로젝터 원거리 스캔 최적화) -->
-        <div style="background: white; padding: 16px; border-radius: 18px; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 12px 32px rgba(0,0,0,0.45); border: 4px solid #fbbf24;">
-          <img id="screenQrImage" src="" alt="접속 QR코드" style="width: min(440px, 50vh); height: min(440px, 50vh); object-fit: contain; display: block;">
+        <!-- 빔프로젝터 원거리 스캔 최적화 대형 QR 코드 -->
+        <div style="background: white; padding: 12px; border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 10px 24px rgba(0,0,0,0.4); border: 3px solid #fbbf24;">
+          <img id="screenQrImage" src="" alt="접속 QR코드" style="width: min(280px, 34vh); height: min(280px, 34vh); object-fit: contain; display: block;">
         </div>
 
         <div style="width: 100%; display: flex; flex-direction: column; gap: 8px;">
-          <div id="screenQrUrl" style="font-size: 1.05rem; font-weight: 800; color: #38bdf8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+          <div id="screenQrUrl" style="font-size: 0.85rem; font-weight: 800; color: #38bdf8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: rgba(0,0,0,0.3); padding: 5px 8px; border-radius: 6px;">
             접속 주소 로딩 중...
           </div>
 
-          <div style="background: rgba(255, 255, 255, 0.06); padding: 10px 22px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.12); display: flex; align-items: center; justify-content: space-between;">
-            <span style="font-size: 1rem; font-weight: 800; color: #cbd5e1;">현재 총 투표 완료 인원</span>
-            <div id="screenVotersCount" style="font-size: 2rem; font-weight: 900; color: #34d399; line-height: 1;">
-              0<span style="font-size: 1.1rem; color: #94a3b8; margin-left: 4px;">명</span>
+          <div style="background: rgba(255, 255, 255, 0.06); padding: 10px 16px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.12); display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 0.88rem; font-weight: 800; color: #cbd5e1;">현재 총 투표 완료 인원</span>
+            <div id="screenVotersCount" style="font-size: 1.8rem; font-weight: 900; color: #34d399; line-height: 1;">
+              0<span style="font-size: 1rem; color: #94a3b8; margin-left: 3px;">명</span>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- 우측: 실시간 블라인드 투표 현황 (5개 카드가 높이에 딱 맞게 균등 배분) -->
-      <div style="height: 100%; min-height: 0; background: rgba(19, 28, 46, 0.9); border: 1px solid var(--border-dark); border-radius: 14px; padding: 16px 20px; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden;">
+      <!-- [2. 중앙 영역] 본선 5개 후보작 15초 자동 롤링 쇼케이스 (고화질 대형 사진) -->
+      <div style="height: 100%; min-height: 0; background: rgba(19, 28, 46, 0.95); border: 1px solid var(--border-dark); border-radius: 16px; padding: 16px 18px; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden;">
         
-        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-dark); padding-bottom: 10px; flex-shrink: 0;">
-          <div>
-            <div style="font-size: 0.8rem; color: var(--accent-gold); font-weight: 800;">
-              <i class="fa-solid fa-eye-slash"></i> 실시간 블라인드 집계
+        <!-- 상단: 단체명 및 작품명 정보 헤더 -->
+        <div style="flex-shrink: 0; border-bottom: 1px solid var(--border-dark); padding-bottom: 10px; margin-bottom: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span id="introCategoryBadge" class="badge badge-blue" style="font-size: 0.85rem; padding: 3px 10px;">
+                부문
+              </span>
+              <strong id="introGroupName" style="font-size: 1.15rem; color: white;">
+                단체명
+              </strong>
             </div>
-            <h3 style="font-size: 1.35rem; font-weight: 900;" id="blindStatusTitle">
-              5분 마감 전: 기호 비공개 블라인드 득표수 표출
-            </h3>
+            <span id="introCounter" style="font-size: 0.95rem; font-weight: 800; color: var(--accent-gold);">
+              1 / 5
+            </span>
           </div>
-          <div style="font-size: 0.8rem; color: #94a3b8;" id="blindNotice">
-            * 5분 마감 즉시 기호 및 단체명이 공개됩니다!
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 0.78rem; color: #94a3b8; font-weight: 700;">작품명:</span>
+            <div id="introPhotoTitle" style="font-size: 1.18rem; font-weight: 900; color: var(--accent-gold-light); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+              "활동의 한순간"
+            </div>
           </div>
         </div>
 
-        <!-- 5개 블라인드 바 컨테이너 (스크롤 없이 균등 분할) -->
-        <div id="blindBarsContainer" style="flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-around; gap: 8px; margin: 10px 0; overflow: hidden;">
+        <!-- 중앙: 대형 사진 액자 (100% 온전한 원본 비율 보존) -->
+        <div style="position: relative; flex: 1; min-height: 0; background: #000; border-radius: 10px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid #334155;">
+          <img id="introImage" src="/assets/church_exterior.jpg" onerror="this.src='/assets/church_exterior.jpg'" style="max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; display: block; transition: opacity 0.3s ease;" alt="후보 사진">
+          
+          <div style="position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.8); backdrop-filter: blur(6px); padding: 4px 14px; border-radius: 999px; border: 2px solid var(--accent-gold); z-index: 10;">
+            <span id="introCandidateNumber" style="font-size: 1.15rem; font-weight: 900; color: var(--accent-gold);">기호 1번</span>
+          </div>
+
+          <!-- 15초 슬라이드 진행 바 -->
+          <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 5px; background: rgba(255,255,255,0.2); z-index: 10;">
+            <div id="introSlideProgress" style="height: 100%; width: 0%; background: var(--accent-gold); transition: width 0.1s linear;"></div>
+          </div>
+        </div>
+
+        <!-- 하단: 설명 및 수동 넘김 버튼 -->
+        <div style="flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border-dark);">
+          <div id="introPhotoDesc" style="font-size: 0.85rem; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1;">
+            상모성당 25주년 기념 활동 사진
+          </div>
+          <div style="display: flex; gap: 6px; flex-shrink: 0;">
+            <button class="btn btn-dark" id="btnPrevIntro" style="padding: 4px 10px; font-size: 0.78rem;">
+              <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <button class="btn btn-dark" id="btnNextIntro" style="padding: 4px 10px; font-size: 0.78rem;">
+              <i class="fa-solid fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- [3. 우측 영역] 실시간 블라인드 투표 집계 현황 (마감 시 1~5위 순위 자동 공개) -->
+      <div style="height: 100%; min-height: 0; background: rgba(19, 28, 46, 0.95); border: 1px solid var(--border-dark); border-radius: 16px; padding: 16px 18px; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden;">
+        
+        <div style="flex-shrink: 0; border-bottom: 1px solid var(--border-dark); padding-bottom: 8px;">
+          <div style="font-size: 0.78rem; color: var(--accent-gold); font-weight: 800;">
+            <i class="fa-solid fa-chart-simple"></i> 실시간 득표 집계 현황
+          </div>
+          <h3 style="font-size: 1.25rem; font-weight: 900; margin: 2px 0 0 0;" id="blindStatusTitle">
+            5분 마감 전: 기호 비공개 블라인드 집계
+          </h3>
+          <div style="font-size: 0.76rem; color: #94a3b8; margin-top: 2px;" id="blindNotice">
+            * 5분 마감 즉시 기호 및 순위가 전격 공개됩니다!
+          </div>
+        </div>
+
+        <!-- 5개 블라인드 바 컨테이너 -->
+        <div id="blindBarsContainer" style="flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-around; gap: 6px; margin: 8px 0; overflow: hidden;">
           <!-- 자바스크립트로 5개 후보 블라인드 카드 렌더링 -->
         </div>
 
-        <!-- 5분 마감 후 최종 점수 가이드 (하단 고정) -->
-        <div id="rankScoreGuide" style="display: none; padding: 8px 16px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 8px; justify-content: space-between; align-items: center; flex-shrink: 0;">
-          <div style="font-weight: 800; color: var(--accent-gold-light); font-size: 0.9rem;">
-            <i class="fa-solid fa-trophy"></i> 사진 2 모바일 투표 순위별 점수 환산 완료
+        <!-- 5분 마감 후 최종 순위별 점수 가이드 -->
+        <div id="rankScoreGuide" style="display: none; padding: 6px 12px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 8px; justify-content: space-between; align-items: center; flex-shrink: 0;">
+          <div style="font-weight: 800; color: var(--accent-gold-light); font-size: 0.82rem;">
+            <i class="fa-solid fa-trophy"></i> 사진2 순위별 점수 환산
           </div>
-          <div style="font-size: 0.82rem; color: #e2e8f0; display: flex; gap: 12px;">
-            <span>1위: 50점</span>
-            <span>2위: 45점</span>
-            <span>3위: 40점</span>
-            <span>4위: 35점</span>
-            <span>5위: 30점</span>
+          <div style="font-size: 0.76rem; color: #e2e8f0; display: flex; gap: 8px;">
+            <span>1위:50점</span>
+            <span>2위:45점</span>
+            <span>3위:40점</span>
+            <span>4위:35점</span>
+            <span>5위:30점</span>
           </div>
         </div>
 
       </div>
 
-    </section>
-
+    </div>
   </main>
 
   <script src="/socket.io/socket.io.js"></script>
