@@ -390,6 +390,20 @@ app.post('/api/restore', express.json({ limit: '50mb' }), (req, res) => {
   }
 });
 
+// 브라우저 로컬 안전 보관소와 자동 무손실 병합 (서버 재배포 시 자동 복구)
+app.post('/api/sync/auto-merge', express.json({ limit: '50mb' }), (req, res) => {
+  try {
+    const { groups } = req.body;
+    const result = dataManager.mergeGroups(groups);
+    if (result.addedCount > 0) {
+      io.emit('groups_updated', dataManager.getGroups());
+    }
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(400).json({ success: false, error: err.message });
+  }
+});
+
 // 11. 최종 시상 및 종합 결과 조회
 app.get('/api/awards', (req, res) => {
   const awards = dataManager.calculateAwards();

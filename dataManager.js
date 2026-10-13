@@ -3,6 +3,7 @@ const path = require('path');
 
 const DATA_DIR = path.join(__dirname, 'data');
 const DATA_FILE = path.join(DATA_DIR, 'store.json');
+const BACKUP_FILE = path.join(DATA_DIR, 'backup_latest.json');
 
 // 기본 성당 단체 샘플 데이터 (초기 상태에서 즉시 시연 및 사용 가능하도록 구성)
 const INITIAL_DATA = {
@@ -210,10 +211,29 @@ class DataManager {
     try {
       if (fs.existsSync(DATA_FILE)) {
         const raw = fs.readFileSync(DATA_FILE, 'utf-8');
-        return JSON.parse(raw);
+        const parsed = JSON.parse(raw);
+        if (parsed && Array.isArray(parsed.groups) && parsed.groups.length > 0) {
+          return parsed;
+        }
+      }
+      // DATA_FILE에 단체가 없거나 비어있을 때 백업 스냅샷에서 자동 복원
+      if (fs.existsSync(BACKUP_FILE)) {
+        const backupRaw = fs.readFileSync(BACKUP_FILE, 'utf-8');
+        const backupParsed = JSON.parse(backupRaw);
+        if (backupParsed && Array.isArray(backupParsed.groups) && backupParsed.groups.length > 0) {
+          console.log('[데이터 보호] 메인 파일 유실 감지되어 최신 백업 스냅샷에서 자동 복원 완료');
+          this.saveData(backupParsed);
+          return backupParsed;
+        }
       }
     } catch (err) {
-      console.error('데이터 로드 실패, 기본값 사용:', err.message);
+      console.error('데이터 로드 실패, 백업 확인:', err.message);
+      if (fs.existsSync(BACKUP_FILE)) {
+        try {
+          const backupParsed = JSON.parse(fs.readFileSync(BACKUP_FILE, 'utf-8'));
+          if (backupParsed && Array.isArray(backupParsed.groups)) return backupParsed;
+        } catch (e) {}
+      }
     }
     this.saveData(INITIAL_DATA);
     return JSON.parse(JSON.stringify(INITIAL_DATA));
@@ -221,10 +241,45 @@ class DataManager {
 
   saveData(data = this.data) {
     try {
+      this.ensureDataDir();
       fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf-8');
+      // 단체 데이터가 1개 이상 존재할 때 항상 백업 스냅샷 사본 자동 갱신
+      if (data && Array.isArray(data.groups) && data.groups.length > 0) {
+        fs.writeFileSync(BACKUP_FILE, JSON.stringify(data, null, 2), 'utf-8');
+      }
     } catch (err) {
       console.error('데이터 저장 오류:', err.message);
     }
+  }
+
+  // 브라우저 로컬스토리지 또는 외부 데이터와 안전 무손실 병합 (Merge)
+  mergeGroups(incomingGroups) {
+    if (!Array.isArray(incomingGroups) || incomingGroups.length === 0) {
+      return { addedCount: 0, totalGroups: this.data.groups.length, groups: this.data.groups };
+    }
+    const existingMap = new Map();
+    this.data.groups.forEach(g => {
+      const key = `${(g.category || '').trim()}::${(g.name || '').trim()}`;
+      existingMap.set(key, g);
+      existingMap.set(g.id, g);
+    });
+
+    let addedCount = 0;
+    incomingGroups.forEach(inGroup => {
+      const key = `${(inGroup.category || '').trim()}::${(inGroup.name || '').trim()}`;
+      if (!existingMap.has(key) && !existingMap.has(inGroup.id)) {
+        this.data.groups.push(inGroup);
+        existingMap.set(key, inGroup);
+        existingMap.set(inGroup.id, inGroup);
+        addedCount++;
+      }
+    });
+
+    if (addedCount > 0) {
+      this.saveData();
+      console.log(`[데이터 안전 병합] 누락되었던 ${addedCount}개 팀이 안전하게 자동 복구되었습니다.`);
+    }
+    return { addedCount, totalGroups: this.data.groups.length, groups: this.data.groups };
   }
 
   getStore() {

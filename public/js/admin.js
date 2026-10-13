@@ -132,24 +132,44 @@ function saveLocalBackup(stateData) {
   }
 }
 
-function checkDataRecovery(serverGroups) {
+async function checkDataRecovery(serverGroups) {
   try {
     const backupRaw = localStorage.getItem(LOCAL_BACKUP_KEY);
     if (!backupRaw) return;
     const backup = JSON.parse(backupRaw);
     if (!backup.groups || !Array.isArray(backup.groups)) return;
 
-    // 만약 브라우저에 보관된 팀 수가 서버 팀 수보다 많다면, 서버 재배포로 인한 유실 가능성 감지!
-    const banner = document.getElementById('dataRecoveryBanner');
-    const countEl = document.getElementById('recoveryGroupsCount');
-    if (backup.groups.length > (serverGroups ? serverGroups.length : 0)) {
-      if (banner && countEl) {
-        countEl.textContent = backup.groups.length;
-        banner.style.display = 'block';
+    // 만약 브라우저에 보관된 팀 중 서버에 누락된 팀이 있다면 -> 자동 무손실 병합(Auto-Merge) 실행!
+    const serverIdSet = new Set((serverGroups || []).map(g => g.id));
+    const missingGroups = backup.groups.filter(g => !serverIdSet.has(g.id));
+
+    if (missingGroups.length > 0) {
+      console.log(`[데이터 보호] 서버에 누락된 ${missingGroups.length}개 팀 감지 -> 백그라운드 자동 복원 진행`);
+      try {
+        const res = await fetch('/api/sync/auto-merge', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ groups: backup.groups })
+        });
+        const result = await res.json();
+        if (result.success && result.addedCount > 0) {
+          showToast(`안전 복원: 누락되었던 ${result.addedCount}개 팀이 자동으로 완벽 복원되었습니다!`, 'success');
+          const r2 = await fetch(`/api/state?t=${Date.now()}`, { cache: 'no-store' });
+          const d2 = await r2.json();
+          currentSettings = d2.settings;
+          currentGroups = d2.groups;
+          currentFinalists = d2.finalists;
+          currentVotingState = d2.votingState;
+          updateUI();
+          return;
+        }
+      } catch (err) {
+        console.error('자동 복원 요청 실패:', err);
       }
-    } else {
-      if (banner) banner.style.display = 'none';
     }
+
+    const banner = document.getElementById('dataRecoveryBanner');
+    if (banner) banner.style.display = 'none';
   } catch (err) {
     console.warn('복구 체크 오류:', err);
   }
