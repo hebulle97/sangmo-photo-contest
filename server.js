@@ -29,6 +29,10 @@ const tunnelManager = new TunnelManager(PORT, (newUrl) => {
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads'), {
+  maxAge: '7d',
+  immutable: true
+}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // 파일 업로드 설정 (사진 1, 사진 2)

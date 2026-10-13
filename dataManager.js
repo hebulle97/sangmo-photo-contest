@@ -167,11 +167,42 @@ class DataManager {
   constructor() {
     this.ensureDataDir();
     this.data = this.loadData();
+    this.deduplicateGroups();
   }
 
   ensureDataDir() {
     if (!fs.existsSync(DATA_DIR)) {
       fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+  }
+
+  // 실수로 여러 번 클릭되어 중복 생성된 동일 부문+단체명 항목 자동 정리 (1개만 유지)
+  deduplicateGroups() {
+    if (!this.data || !Array.isArray(this.data.groups)) return;
+    const seen = new Map();
+    const uniqueGroups = [];
+
+    for (const g of this.data.groups) {
+      const key = `${(g.category || '').trim()}::${(g.name || '').trim()}`;
+      if (!seen.has(key)) {
+        seen.set(key, uniqueGroups.length);
+        uniqueGroups.push(g);
+      } else {
+        // 이미 동일 단체명이 있으면, 기존 항목이 본선 후보가 아닐 경우 최신 정보(설명/사진)만 덮어쓰고 중복 행은 제거
+        const idx = seen.get(key);
+        const existing = uniqueGroups[idx];
+        if (!existing.isFinalist) {
+          if (g.photo1Url) existing.photo1Url = g.photo1Url;
+          if (g.photo2Url) existing.photo2Url = g.photo2Url;
+          if (g.photo2Title) existing.photo2Title = g.photo2Title;
+          if (g.photo2Desc) existing.photo2Desc = g.photo2Desc;
+        }
+      }
+    }
+
+    if (uniqueGroups.length !== this.data.groups.length) {
+      this.data.groups = uniqueGroups;
+      this.saveData();
     }
   }
 
@@ -215,15 +246,35 @@ class DataManager {
   }
 
   addGroup({ category, name, registeredCount, attendedCount, photo1Url, photo2Url, photo2Title, photo2Desc }) {
+    const cleanCategory = (category || '구역·반').trim();
+    const cleanName = (name || '새 단체').trim();
     const reg = Math.max(1, parseInt(registeredCount) || 1);
     const att = Math.max(0, parseInt(attendedCount) || 0);
+
+    // 동일 부문 + 동일 단체명이 이미 존재할 경우 중복 행을 늘리지 않고 기존 단체를 즉시 업데이트
+    const existing = this.data.groups.find(
+      g => (g.category || '').trim() === cleanCategory && (g.name || '').trim() === cleanName
+    );
+    if (existing) {
+      return this.updateGroup(existing.id, {
+        category: cleanCategory,
+        name: cleanName,
+        registeredCount: reg,
+        attendedCount: att,
+        photo1Url: photo1Url || existing.photo1Url,
+        photo2Url: photo2Url || existing.photo2Url,
+        photo2Title: (photo2Title || existing.photo2Title || '활동의 한순간').trim(),
+        photo2Desc: (photo2Desc !== undefined ? photo2Desc : (existing.photo2Desc || '')).trim()
+      });
+    }
+
     const rate = Math.min(100, (att / reg) * 100);
     const photo1Score = parseFloat((rate * 0.5).toFixed(1)); // 50점 만점
 
     const newGroup = {
       id: 'grp_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
-      category: category || '구역·반',
-      name: (name || '새 단체').trim(),
+      category: cleanCategory,
+      name: cleanName,
       registeredCount: reg,
       attendedCount: att,
       attendanceRate: parseFloat(rate.toFixed(1)),
